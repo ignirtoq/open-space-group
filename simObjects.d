@@ -1,0 +1,185 @@
+module superAwesome.simObjects;
+
+import superAwesome.environments;
+import superAwesome.geometry;
+import superAwesome.constants;
+import std.math;
+import std.stdio;
+
+template CopySimObject(string from, string to)
+{
+	const string CopySimObject = "
+	" ~ to ~ ".Position = " ~ from ~ ".Position;
+	" ~ to ~ ".Velocity = " ~ from ~ ".Velocity;
+	" ~ to ~ ".Orientation = " ~ from ~ ".Orientation;
+	" ~ to ~ ".AngularVelocity = " ~ from ~ ".AngularVelocity;
+	";
+}
+
+public abstract class SimObject
+{
+	public Vector3 Position;
+	public Vector3 Velocity;
+	public Quaternion Orientation;
+	public Quaternion AngularVelocity;
+
+	public @property string Name() { return name; }
+	private string name;
+	
+	public abstract void Update(real timeStep, EnvironmentService environment);
+	public abstract SimObject Clone(string newName);
+	public abstract void ApplyImpulse(Vector3 impulse);
+	
+	public this(string name)
+	{
+		this.name = name;
+	}
+}
+
+public class Balloon : SimObject
+{
+	public real Radius;
+	public real Mass;
+
+	public this(string name)
+	{
+		super(name);
+	}
+
+	public void Update(real timeStep, EnvironmentService environment)
+	{
+		real airDensity = environment.Density(Position);
+
+		Vector3 gravity = Position.Normalize() * (-GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.LengthSquared());
+		Vector3 buoyancy = gravity * (-2 * airDensity * volume / (Mass + airDensity * volume)); 
+		Vector3 drag = Velocity * (-0.5 * area * dragConstant * airDensity * Velocity.Length());
+
+		Vector3 acceleration = gravity + buoyancy + drag;
+		Velocity = Velocity + (acceleration * timeStep);
+		Position = Position + (Velocity * timeStep);
+	}
+
+	public SimObject Clone(string newName)
+	{
+		Balloon newBalloon = new Balloon(newName);
+		newBalloon.Radius = Radius;
+		newBalloon.Mass = Mass;
+		mixin(CopySimObject!("this", "newBalloon"));
+		return newBalloon;
+	}
+
+	public void ApplyImpulse(Vector3 impulse)
+	{
+		Velocity = Velocity + ((1.0 / Mass) * impulse);
+	}
+	
+	private @property real volume() { return 4.0/3.0 * PI * pow(Radius, 3); }
+	private @property real area() { return PI * pow(Radius, 2); }
+	private real dragConstant = 0.47;
+}
+
+public class Rocket : SimObject
+{
+	public Vector3 CenterOfPressure;
+	public real ThrustAcceleration;
+	public real BurnTime;
+
+	public this(string name)
+	{
+		super(name);
+	}
+	
+	public void Update(real timeStep, EnvironmentService environment)
+	{
+		real airDensity = environment.Density(Position);
+
+		Vector3 gravity = Position.Normalize() * (-GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.LengthSquared());
+		Vector3 drag = Velocity * (-0.5 * area * 0.5 * airDensity * Velocity.Length());
+
+		Vector3 thrustVector = thrust * Velocity.Normalize();
+
+		Vector3 acceleration = gravity + drag;
+		if(burnedTime < burnTime)
+			acceleration = acceleration + thrustVector;
+		Velocity = Velocity + (acceleration * timeStep);
+		Position = Position + (Velocity * timeStep);
+
+		burnedTime += timeStep;
+	}
+	
+	public SimObject Clone(string newName)
+	{
+		Projectile newProjectile = new Projectile(newName);
+		mixin(CopySimObject!("this", "newProjectile"));
+		return newProjectile;
+	}
+
+	public void ApplyImpulse(Vector3 impulse)
+	{
+		Velocity = Velocity + ((1.0 / mass) * impulse);
+	}
+
+	private real burnedTime = 0;
+	private real mass = 1;
+	private real area = PI * 0.15*0.15;
+}
+
+/*
+public class Balloon// : SimObject
+{
+	public this(string name, real mass, real radius, Vector3 initialPosition = Vector3(0,0,0), Vector3 initialVelocity= Vector3(0,0,0))
+	{
+		super(name, mass,  initialPosition, initialVelocity);
+		this.radius = radius;
+	}
+	
+	public void Update(real timeStep)
+	{
+		Vector3 gravity = Vector3(0,-1,0).Scale(G * massEarth / pow(radiusEarth + Position.Y, 2));
+		Vector3 buoyancy = gravity.Scale(-2 *Mass * densityAir(Position.Y) * volume / (Mass + densityAir(Position.Y) * volume)); 
+		Vector3 drag = Velocity.Scale(-0.5 * area * dragConstant * densityAir(Position.Y) * Velocity.Length());
+
+		Vector3 acceleration = gravity.Add(buoyancy).Add(drag);
+		Velocity = Velocity.Add(acceleration.Scale(timeStep));
+		Position = Position.Add(Velocity.Scale(timeStep));
+	}
+		
+	private @property real volume() { return 4.0/3.0 * PI * pow(radius,3); }
+	private @property real area() { return PI * pow(radius, 2); }
+	private real dragConstant = 0.47;
+	private real radius;
+}
+
+public class StubObject// : SimObject
+{
+	public this(string name, real mass, real acceleration, Vector3 initialPosition = Vector3(0,0,0), Vector3 initialVelocity= Vector3(0,0,0))
+	{
+		super(name, mass, initialPosition, initialVelocity);
+		this.acceleration = acceleration;
+	}
+	
+	public void Update(real timeStep)
+	{
+		Velocity.Y += acceleration * timeStep;
+		Position.Y += timeStep * Velocity.Y;
+	}
+	
+	private real acceleration;
+}
+*/
+
+private const real G = 6.67e-11;
+private const real massEarth = 5.97e24;
+private const real radiusEarth = 6371e3;
+private const real densityAirSTP = 1.21;
+
+private real densityAir(real height)
+{
+	return densityAirSTP * exp(-height / 8e3);
+}
+
+static this()
+{
+	//std.stdio.writeln(8e3 * log(4*PI*densityAirSTP / 3));
+	//assert(false);
+}
