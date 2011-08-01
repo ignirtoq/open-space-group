@@ -2,10 +2,13 @@ module superAwesome.parsing.simulations;
 
 import superAwesome.simulations;
 import superAwesome.simObjects;
+import superAwesome.events;
+import superAwesome.loggers;
 import superAwesome.parsing.primitives;
 import superAwesome.parsing.simObjects;
 import superAwesome.parsing.environments;
 import superAwesome.parsing.loggers;
+import superAwesome.parsing.events;
 import std.file;
 import std.stdio;
 import std.xml;
@@ -34,14 +37,34 @@ public Simulation ParseSimulation(string simFile)
 		if(!reserved)
 			parsedSimulation.AddObject(newObject);
 	};
+
 	xmlParser.onStartTag["Environment"] = (ElementParser environmentParser)
 	{
 		assert(parsedSimulation.Environment is null, "XML contains multiple environments");
 		string typeName = environmentParser.tag.attr["type"];
 		parsedSimulation.Environment = GetEnvironmentParser(typeName)(environmentParser);
 	};
+
+	xmlParser.onStartTag["Event"] = (ElementParser eventParser)
+	{
+		string typeName = eventParser.tag.attr["type"];
+		Event newEvent = GetEventParser(typeName)(eventParser, simObjects);
+		parsedSimulation.AddEvent(newEvent);
+	};
+
+	xmlParser.onStartTag["Logger"] = (ElementParser loggerParser)
+	{
+		assert(parsedSimulation.Logger is null, "XML defines multiple loggers");
+		string typeName = loggerParser.tag.attr["type"];
+		parsedSimulation.Logger = GetLoggerParser(typeName)(loggerParser);
+	};
+
 	xmlParser.onEndTag["TimeStep"] = (in Element e) { parsedSimulation.TimeStep = ParseReal(e); };
 	xmlParser.parse();
+
+	assert(parsedSimulation.TimeStep > 0, "XML file defined an invalid TimeStep or provided no TimeStep at all");
+	assert(parsedSimulation.Environment !is null, "XML file provided no Environment");
+	assert(parsedSimulation.Logger !is null, "XML file provided no Logger");
 
 	return parsedSimulation;
 }

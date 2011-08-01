@@ -3,6 +3,7 @@ module superAwesome.simObjects;
 import superAwesome.environments;
 import superAwesome.geometry;
 import superAwesome.constants;
+import superAwesome.commonMath;
 import std.math;
 import std.stdio;
 
@@ -48,11 +49,9 @@ public class Balloon : SimObject
 
 	public void Update(real timeStep, EnvironmentService environment)
 	{
-		real airDensity = environment.Density(Position);
-
-		Vector3 gravity = Position.Normalize() * (-GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.LengthSquared());
-		Vector3 buoyancy = gravity * (-2 * airDensity * volume / (Mass + airDensity * volume)); 
-		Vector3 drag = Velocity * (-0.5 * area * dragConstant * airDensity * Velocity.Length());
+		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
+		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, dragConstant, &environment.Density);
+		Vector3 buoyancy = (1.0 / Mass) * BuoyantForce(Position, Mass, volume, &environment.Density);
 
 		Vector3 acceleration = gravity + buoyancy + drag;
 		Velocity = Velocity + (acceleration * timeStep);

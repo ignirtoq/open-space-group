@@ -1,9 +1,16 @@
 <Simulation>
 	<SimObject type="Balloon" name="Balloon1">
-		<Position x="0" y="0" z="0" />
+		<Position x="0" y="0" z="6.3781e6" />
 		<Velocity x="0" y="0" z="0" />
-		<AngularVelocity x="1" y="-3" z="2.5" />
-		<Orientation real="1.5" i="0" j="-3.4" k="3" />
-		<Radius>3.14159</Radius>
+		<AngularVelocity x="0" y="0" z="0" />
+		<Orientation real="0" i="0" j="0" k="0" />
+		<Radius>1.0</Radius>
+		<Mass>1.0</Mass>
 	</SimObject>
+	<TimeStep>1</TimeStep>
+	<Logger type="SingleObjectPositionLogger">
+		<TargetName>Balloon1</TargetName>
+		<LogInterval>1.0</LogInterval>
+	</Logger>
+	<Environment type="NaiveNASAEnvironment" />
 </Simulation>

@@ -15,6 +15,16 @@ private LoggerParser[string] parsers;
 
 static this()
 {
+	parsers["SingleObjectPositionLogger"] = &parseSingleObjectPositionLogger;
 }
 
+private Logger parseSingleObjectPositionLogger(ElementParser xml)
+{
+	SingleObjectPositionLogger newLogger = new SingleObjectPositionLogger();
 
+	xml.onEndTag["TargetName"] = (in Element e) { newLogger.TargetName = e.text; };
+	xml.onEndTag["LogInterval"] = (in Element e) { newLogger.LogInterval = ParseReal(e); };
+	xml.parse();
+
+	return newLogger;
+}

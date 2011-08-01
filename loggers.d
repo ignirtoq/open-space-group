@@ -17,11 +17,7 @@ public abstract class Logger
 public class SingleObjectPositionLogger : Logger
 {
 	public real LogInterval;
-
-	public this(string objectName)
-	{
-		this.objectName = objectName;
-	}
+	public string TargetName;
 
 	public void BeginTimeStep(real time)
 	{
@@ -49,7 +45,7 @@ public class SingleObjectPositionLogger : Logger
 
 	public void LogSimObject(SimObject simObject)
 	{
-		if(isLogging && simObject.Name == objectName)
+		if(isLogging && simObject.Name == TargetName)
 		{
 			currentPosition = simObject.Position;
 		}
@@ -66,6 +62,4 @@ public class SingleObjectPositionLogger : Logger
 	private real lastLog = 0;
 	private real currentTime;
 	private Vector3 currentPosition;
-
-	private string objectName;
 }
