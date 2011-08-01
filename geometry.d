@@ -129,7 +129,7 @@ public struct Quaternion
 	{
 		Quaternion conjugateQuat;
 		conjugateQuat.Scalar = Scalar;
-		conjugateQuat.Vector = (-1) * Vector;
+		//conjugateQuat.Vector = (-1.0) * Vector;
 		return conjugateQuat;
 	}
 }

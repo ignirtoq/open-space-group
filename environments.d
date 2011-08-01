@@ -11,7 +11,7 @@ public abstract class EnvironmentService
 	public abstract real Density(Vector3 position);
 }
 
-public class OneLayerSteadyStateEnvironment : EnvironmentService
+public class NaiveNASAEnvironment : EnvironmentService
 {
 	public real Temperature(Vector3 position)
 	{

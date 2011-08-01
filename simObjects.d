@@ -21,7 +21,7 @@ public abstract class SimObject
 	public Vector3 Position;
 	public Vector3 Velocity;
 	public Quaternion Orientation;
-	public Quaternion AngularVelocity;
+	public Vector3 AngularVelocity;
 
 	public @property string Name() { return name; }
 	private string name;
@@ -96,10 +96,10 @@ public class Rocket : SimObject
 		Vector3 gravity = Position.Normalize() * (-GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.LengthSquared());
 		Vector3 drag = Velocity * (-0.5 * area * 0.5 * airDensity * Velocity.Length());
 
-		Vector3 thrustVector = thrust * Velocity.Normalize();
+		Vector3 thrustVector = ThrustAcceleration * Velocity.Normalize();
 
 		Vector3 acceleration = gravity + drag;
-		if(burnedTime < burnTime)
+		if(burnedTime < BurnTime)
 			acceleration = acceleration + thrustVector;
 		Velocity = Velocity + (acceleration * timeStep);
 		Position = Position + (Velocity * timeStep);
@@ -109,9 +109,9 @@ public class Rocket : SimObject
 	
 	public SimObject Clone(string newName)
 	{
-		Projectile newProjectile = new Projectile(newName);
-		mixin(CopySimObject!("this", "newProjectile"));
-		return newProjectile;
+		Rocket newRocket = new Rocket(newName);
+		mixin(CopySimObject!("this", "newRocket"));
+		return newRocket;
 	}
 
 	public void ApplyImpulse(Vector3 impulse)
