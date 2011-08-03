@@ -4,9 +4,16 @@
 		<Velocity x="0" y="0" z="0" />
 		<AngularVelocity x="0" y="0" z="0" />
 		<Orientation real="0" i="0" j="0" k="0" />
-		<Mass>5.0</Mass>
-		<MomentOfInertia x="0" y="0" z="0" />
-		<Radius>6.5</Radius>
+		<Radius>1.1</Radius>
+		<Mass>1.0</Mass>
+	</SimObject>
+	<SimObject type="Balloon" name="BalloonTemplate" reserved="true">
+		<Position x="0" y="0" z="6.3781e6" />
+		<Velocity x="0" y="0" z="0" />
+		<AngularVelocity x="0" y="0" z="0" />
+		<Orientation real="0" i="0" j="0" k="0" />
+		<Radius>1.1</Radius>
+		<Mass>1.0</Mass>
 	</SimObject>
 	<SimObject type="Rocket" name="Rocket1" reserved="true">
 		<Position x="0" y="0" z="6.3781e6" />
@@ -19,24 +26,21 @@
 		<BurnTime>100</BurnTime>
 		<Radius>.25</Radius>
 	</SimObject>
-	<SimObject type="Satellite" name="Satellite1">
-		<Position x="7.2781e6" y="0" z="0" />
-		<Velocity x="1000" y="6401.01751" z="0" />
-		<AngularVelocity x="0" y="0" z="0" />
-		<Orientation real="0" i="0" j="0" k="0" />
-		<MomentOfInertia x="0" y="0" z="0" />
-		<Mass>1.0</Mass>
-		<MaxThrust>200</MaxThrust>
-		<Radius>0.1</Radius>
-	</SimObject>
-	<Event type="HaltSimEvent">
+		<Event type="ObjectCreationEvent">
+		<TemplateName>BalloonTemplate</TemplateName>
+		<NewName>Balloon2</NewName>
 		<Trigger type="TurnAroundTrigger">
 			<TargetName>Balloon1</TargetName>
 		</Trigger>
 	</Event>
+	<Event type="HaltSimEvent">
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon2</TargetName>
+		</Trigger>
+	</Event>
 	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
-		<TargetName>Satellite1</TargetName>
+		<TargetName>Balloon2</TargetName>
 		<LogInterval>.20</LogInterval>
 	</Logger>
 	<Environment type="NaiveNASAEnvironment" />

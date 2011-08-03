@@ -20,6 +20,7 @@ static this()
 {
 	parsers["HaltSimEvent"] = &parseHaltSimEvent;
 	parsers["ObjectDestructionEvent"] = &parseObjectDestructionEvent;
+	parsers["ObjectCreationEvent"] = &parseObjectCreationEvent;
 	parsers["ChangeTimeStepEvent"] = &parseChangeTimeStepEvent;
 }
 
@@ -30,6 +31,21 @@ private Event parseHaltSimEvent(ElementParser xml, SimObject[string] clonableObj
 	xml.parse();
 
 	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
+	return newEvent;
+}
+
+private Event parseObjectCreationEvent(ElementParser xml, SimObject[string] clonableObjects)
+{
+	auto newEvent = new ObjectCreationEvent();
+	string templateName;
+	hookupTriggerParser(xml, newEvent);
+	xml.onEndTag["TemplateName"] = (in Element e) { templateName = e.text; };
+	xml.onEndTag["NewName"] = (in Element e) { newEvent.NewName = e.text; };
+	xml.onEndTag["AttributeSourceName"] =  (in Element e) { newEvent.AttributeSourceName = e.text; };
+	xml.parse();
+
+	assert(templateName in clonableObjects, "XML has an ObjectCreationEvent that references a non-existant template");
+	newEvent.Template = clonableObjects[templateName];
 	return newEvent;
 }
 
