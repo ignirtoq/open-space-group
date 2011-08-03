@@ -177,7 +177,7 @@ public class Satellite : SimObject
 	
 	private real idealThrust(Vector3 idealVelocity, Vector3 gravity, real timeStep, EnvironmentService environment)
 	{
-		if ((idealVelocity - Velocity).Length()/idealVelocity.Length() < 0.05)
+		if ((idealVelocity - Velocity).Length() / idealVelocity.Length() < 0.02)
 			return 0.0;
 	
 		return fmin(MaxThrust / Mass, gravity.Length() + (Velocity - idealVelocity).Length() / timeStep);

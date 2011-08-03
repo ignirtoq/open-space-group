@@ -26,22 +26,33 @@
 		<BurnTime>100</BurnTime>
 		<Radius>.25</Radius>
 	</SimObject>
-		<Event type="ObjectCreationEvent">
+	<SimObject type="Satellite" name="Satellite1">
+		<Position x="7.5781e6" y="0" z="0" />
+		<Velocity x="0" y="100" z="0" />
+		<AngularVelocity x="0" y="0" z="0" />
+		<Orientation real="0" i="0" j="0" k="0" />
+		<MomentOfInertia x="0" y="0" z="0" />
+		<Mass>1.0</Mass>
+		<MaxThrust>20</MaxThrust>
+		<Radius>0.1</Radius>
+	</SimObject>
+	
+	<!--<Event type="ObjectCreationEvent">
 		<TemplateName>BalloonTemplate</TemplateName>
 		<NewName>Balloon2</NewName>
 		<Trigger type="TurnAroundTrigger">
 			<TargetName>Balloon1</TargetName>
 		</Trigger>
-	</Event>
+	</Event>-->
 	<Event type="HaltSimEvent">
-		<Trigger type="TurnAroundTrigger">
-			<TargetName>Balloon2</TargetName>
+		<Trigger type="FloorTrigger">
+			<TargetName>Satellite1</TargetName>
 		</Trigger>
 	</Event>
 	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
-		<TargetName>Balloon2</TargetName>
-		<LogInterval>.20</LogInterval>
+		<TargetName>Satellite1</TargetName>
+		<LogInterval>.50</LogInterval>
 	</Logger>
 	<Environment type="NaiveNASAEnvironment" />
 </Simulation>
