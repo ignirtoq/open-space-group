@@ -69,6 +69,30 @@ public struct Vector3
 		);
 	}
 	
+	public Vector3 ProjectedOnto(Vector3 other)
+	{
+		if (other.LengthSquared() == 0.0)
+			return Vector3(0,0,0);
+		
+		return (1.0/other.LengthSquared()) * this.Dot(other) * other;
+	}
+	
+	public real ComponentInDirection(Vector3 other)
+	{
+		if (other.LengthSquared() == 0.0)
+			return 0.0;
+			
+		return this.Dot(other.Normalize());
+	}
+	
+	public Vector3 RotateBy(Quaternion rotation)
+	{
+		if (rotation.Scalar == 0)
+			return this;
+		
+		return (rotation*Quaternion(0,this)*rotation.Conjugate()).Vector;
+	}
+	
 	public real X,Y,Z;
 }
 
@@ -127,9 +151,6 @@ public struct Quaternion
 
 	public Quaternion Conjugate()
 	{
-		Quaternion conjugateQuat;
-		conjugateQuat.Scalar = Scalar;
-		//conjugateQuat.Vector = (-1.0) * Vector;
-		return conjugateQuat;
+		return Quaternion(Scalar, (-1.0) * Vector);
 	}
 }

@@ -6,6 +6,4 @@ import std.stdio;
 void main()
 {
 	Simulation sim = ParseSimulation("test.xml");
-	foreach(x; sim.Events)
-		writeln(x);
 }

@@ -23,6 +23,8 @@ public abstract class SimObject
 	public Vector3 Velocity;
 	public Quaternion Orientation;
 	public Vector3 AngularVelocity;
+	public real Mass = 1.0;
+	public Vector3 MomentOfInertia;
 
 	public @property string Name() { return name; }
 	private string name;
@@ -40,7 +42,6 @@ public abstract class SimObject
 public class Balloon : SimObject
 {
 	public real Radius;
-	public real Mass;
 
 	public this(string name)
 	{
@@ -82,7 +83,6 @@ public class Rocket : SimObject
 	public Vector3 CenterOfPressure = Vector3(0,0,-1);
 	public real ThrustAcceleration;
 	public real BurnTime = 0;
-	public real Mass = 1;
 	public real Radius = 0.15;
 
 	public this(string name)
@@ -92,8 +92,8 @@ public class Rocket : SimObject
 	
 	public void Update(real timeStep, EnvironmentService environment)
 	{
-		Vector3 gravity = GravitationalForce(Position, Mass);
-		Vector3 drag = DragForce(Position, Velocity, area, 0.5, &environment.Density);
+		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
+		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.5, &environment.Density);
 
 		Vector3 thrustVector = -ThrustAcceleration * CenterOfPressure.Normalize();
 
@@ -119,6 +119,67 @@ public class Rocket : SimObject
 	}
 
 	private real burnedTime = 0;
+	private @property real area() { return PI * Radius*Radius; }
+}
+
+public class Satellite : SimObject
+{
+	public real MaxThrust = 1.0;
+	public real Radius = 0.1;
+
+	public this(string name)
+	{
+		super(name);
+	}
+	
+	public void Update(real timeStep, EnvironmentService environment)
+	{
+		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
+		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.47, &environment.Density);
+		
+		Vector3 acceleration = gravity + drag + thrustVector(timeStep, environment);
+		Velocity = Velocity + (acceleration * timeStep);
+		Position = Position + (Velocity * timeStep);
+	}
+	
+	public SimObject Clone(string newName)
+	{
+		Satellite newSatellite = new Satellite(newName);
+		mixin(CopySimObject!("this", "newSatellite"));
+		return newSatellite;
+	}
+
+	public void ApplyImpulse(Vector3 impulse)
+	{
+		Velocity = Velocity + ((1.0 / Mass) * impulse);
+	}
+	
+	private Vector3 thrustVector(real timeStep, EnvironmentService environment)
+	{
+		real idealVelocityMagnitude = sqrt(GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.Length());
+		Vector3 idealVelocity = idealVelocityDirection() * idealVelocityMagnitude;
+		
+		if (Velocity.ComponentInDirection(idealVelocity) < idealVelocityMagnitude)
+			return idealThrust(idealVelocity, timeStep, environment) * idealVelocity.Normalize();
+		else
+			return -idealThrust(idealVelocity, timeStep, environment) * (Velocity - Velocity.ProjectedOnto(idealVelocity)).Normalize();
+	}
+	
+	private Vector3 idealVelocityDirection()
+	{
+		if (Position.Dot(Velocity) != 0)
+			return Position.Cross(Velocity.Cross(Position)).Normalize();
+		else if (Position.Cross(Vector3(0,0,1)).LengthSquared() != 0)
+			return Position.RotateBy(Quaternion.FromAxisAngle(Vector3(0,0,1),PI/2)).Normalize();
+		else
+			return Position.RotateBy(Quaternion.FromAxisAngle(Vector3(1,0,0),PI/2)).Normalize();
+	}
+	
+	private real idealThrust(Vector3 idealVelocity, real timeStep, EnvironmentService environment)
+	{
+		return fmin(MaxThrust, 0.01 / timeStep * Velocity.Length());
+	}
+	
 	private @property real area() { return PI * Radius*Radius; }
 }
 

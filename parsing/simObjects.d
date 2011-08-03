@@ -19,6 +19,7 @@ static this()
 {
 	parsers["Balloon"] = &parseBalloon;
 	parsers["Rocket"] = &parseRocket;
+	parsers["Satellite"] = &parseSatellite;
 }
 
 private SimObject parseBalloon(ElementParser xml)
@@ -26,7 +27,6 @@ private SimObject parseBalloon(ElementParser xml)
 	Balloon newBalloon = new Balloon(xml.tag.attr["name"]);
 	readyBaseParser(xml, newBalloon);
 	xml.onEndTag["Radius"] = (in Element e) { newBalloon.Radius = ParseReal(e); };
-	xml.onEndTag["Mass"] = (in Element e) { newBalloon.Mass = ParseReal(e); };
 	xml.parse();
 	return newBalloon;
 } 
@@ -37,10 +37,19 @@ private SimObject parseRocket(ElementParser xml)
 	readyBaseParser(xml, newRocket);
 	xml.onEndTag["ThrustAcceleration"] = (in Element e) { newRocket.ThrustAcceleration = ParseReal(e); };
 	xml.onEndTag["BurnTime"] = (in Element e) { newRocket.BurnTime = ParseReal(e); };
-	xml.onEndTag["Mass"] = (in Element e) { newRocket.Mass = ParseReal(e); };
 	xml.onEndTag["Radius"] = (in Element e) { newRocket.Radius = ParseReal(e); };
 	xml.parse();
 	return newRocket;
+} 
+
+private SimObject parseSatellite(ElementParser xml)
+{
+	Satellite newSatellite = new Satellite(xml.tag.attr["name"]);
+	readyBaseParser(xml, newSatellite);
+	xml.onEndTag["MaxThrust"] = (in Element e) { newSatellite.MaxThrust = ParseReal(e); };
+	xml.onEndTag["Radius"] = (in Element e) { newSatellite.Radius = ParseReal(e); };
+	xml.parse();
+	return newSatellite;
 } 
 
 private void readyBaseParser(ElementParser xml, SimObject simObject)
@@ -49,4 +58,6 @@ private void readyBaseParser(ElementParser xml, SimObject simObject)
 	xml.onEndTag["Velocity"] = (in Element e) { simObject.Velocity = ParseVector3(e); };
 	xml.onEndTag["AngularVelocity"] = (in Element e) { simObject.AngularVelocity = ParseVector3(e); };
 	xml.onEndTag["Orientation"] = (in Element e) { simObject.Orientation = ParseQuaternion(e); };
+	xml.onEndTag["Mass"] = (in Element e) { simObject.Mass = ParseReal(e); };
+	xml.onEndTag["MomentOfInertia"] = (in Element e) { simObject.MomentOfInertia = ParseVector3(e); };
 }
