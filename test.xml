@@ -15,7 +15,7 @@
 		<Radius>1.1</Radius>
 		<Mass>1.0</Mass>
 	</SimObject>
-	<SimObject type="Rocket" name="Rocket1" reserved="true">
+	<SimObject type="Rocket" name="Rocket1">
 		<Position x="0" y="0" z="6.3781e6" />
 		<Velocity x="0" y="0" z="0" />
 		<AngularVelocity x="0" y="0" z="0" />
@@ -26,7 +26,7 @@
 		<BurnTime>100</BurnTime>
 		<Radius>.25</Radius>
 	</SimObject>
-	<SimObject type="Satellite" name="Satellite1">
+	<SimObject type="Satellite" name="Satellite1" reserved="true">
 		<Position x="7.5781e6" y="0" z="0" />
 		<Velocity x="0" y="100" z="0" />
 		<AngularVelocity x="0" y="0" z="0" />
@@ -46,12 +46,13 @@
 	</Event>-->
 	<Event type="HaltSimEvent">
 		<Trigger type="FloorTrigger">
-			<TargetName>Satellite1</TargetName>
+			<TargetName>Rocket1</TargetName>
+			<Floor>6.378e6</Floor>
 		</Trigger>
 	</Event>
 	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
-		<TargetName>Satellite1</TargetName>
+		<TargetName>Rocket1</TargetName>
 		<LogInterval>.50</LogInterval>
 	</Logger>
 	<Environment type="NaiveNASAEnvironment" />
