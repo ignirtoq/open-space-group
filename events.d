@@ -26,6 +26,28 @@ public class ImpulseEvent : Event
 	}
 }
 
+public class ObjectCreationEvent : Event
+{
+	public SimObject Template;
+	public string NewName;
+	public string AttributeSourceName;
+
+	public void Apply(Simulation sim)
+	{
+		auto newObject = Template.Clone(NewName);
+		auto attributeSource = AttributeSourceName is null ? null : sim.FindObject(AttributeSourceName);
+
+		if(attributeSource !is null)
+		{
+			newObject.Position = attributeSource.Position;
+			newObject.Velocity = attributeSource.Velocity;
+			newObject.Orientation = attributeSource.Orientation;
+			newObject.AngularVelocity = attributeSource.AngularVelocity;
+		}
+		sim.AddObject(newObject);
+	}
+}
+
 public class ObjectDestructionEvent : Event
 {
 	public string TargetName;
