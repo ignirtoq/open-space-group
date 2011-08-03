@@ -81,7 +81,9 @@ public class Rocket : SimObject
 {
 	public Vector3 CenterOfPressure;
 	public real ThrustAcceleration;
-	public real BurnTime;
+	public real BurnTime = 0;
+	public real Mass = 1;
+	public real Radius = 0.15;
 
 	public this(string name)
 	{
@@ -90,14 +92,12 @@ public class Rocket : SimObject
 	
 	public void Update(real timeStep, EnvironmentService environment)
 	{
-		real airDensity = environment.Density(Position);
-
-		Vector3 gravity = Position.Normalize() * (-GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.LengthSquared());
-		Vector3 drag = Velocity * (-0.5 * area * 0.5 * airDensity * Velocity.Length());
+		Vector3 gravity = GravitationalForce(Position, Mass);
+		Vector3 drag = DragForce(Position, Velocity, area, 0.5, &environment.Density);
 
 		Vector3 thrustVector = ThrustAcceleration * Velocity.Normalize();
 
-		Vector3 acceleration = gravity + drag;
+		Vector3 acceleration = gravity;
 		if(burnedTime < BurnTime)
 			acceleration = acceleration + thrustVector;
 		Velocity = Velocity + (acceleration * timeStep);
@@ -115,12 +115,11 @@ public class Rocket : SimObject
 
 	public void ApplyImpulse(Vector3 impulse)
 	{
-		Velocity = Velocity + ((1.0 / mass) * impulse);
+		Velocity = Velocity + ((1.0 / Mass) * impulse);
 	}
 
 	private real burnedTime = 0;
-	private real mass = 1;
-	private real area = PI * 0.15*0.15;
+	private @property real area() { return PI * Radius*Radius; }
 }
 
 /*

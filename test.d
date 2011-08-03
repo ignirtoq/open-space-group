@@ -5,8 +5,10 @@ import std.stdio;
 
 void main()
 {
-	Simulation sim = ParseSimulation("test.xml");	
-	Balloon balloon = cast(Balloon)sim.FindObject("Balloon1");
+	Simulation sim = ParseSimulation("test2.xml");	
+	auto balloon = cast(Rocket)sim.FindObject("Rocket1");
+	foreach(x; sim.Objects)
+		writeln(x.Name,x);
 	assert(balloon !is null);
 	writeln(balloon.Position);
 	writeln(balloon.Velocity);

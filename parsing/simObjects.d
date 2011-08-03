@@ -18,9 +18,10 @@ private SimObjectParser[string] parsers;
 static this()
 {
 	parsers["Balloon"] = &parseBalloon;
+	parsers["Rocket"] = &parseRocket;
 }
 
-public SimObject parseBalloon(ElementParser xml)
+private SimObject parseBalloon(ElementParser xml)
 {
 	Balloon newBalloon = new Balloon(xml.tag.attr["name"]);
 	readyBaseParser(xml, newBalloon);
@@ -28,6 +29,18 @@ public SimObject parseBalloon(ElementParser xml)
 	xml.onEndTag["Mass"] = (in Element e) { newBalloon.Mass = ParseReal(e); };
 	xml.parse();
 	return newBalloon;
+} 
+
+private SimObject parseRocket(ElementParser xml)
+{
+	Rocket newRocket = new Rocket(xml.tag.attr["name"]);
+	readyBaseParser(xml, newRocket);
+	xml.onEndTag["ThrustAcceleration"] = (in Element e) { newRocket.ThrustAcceleration = ParseReal(e); };
+	xml.onEndTag["BurnTime"] = (in Element e) { newRocket.BurnTime = ParseReal(e); };
+	xml.onEndTag["Mass"] = (in Element e) { newRocket.Mass = ParseReal(e); };
+	xml.onEndTag["Radius"] = (in Element e) { newRocket.Radius = ParseReal(e); };
+	xml.parse();
+	return newRocket;
 } 
 
 private void readyBaseParser(ElementParser xml, SimObject simObject)

@@ -16,9 +16,15 @@ private EnvironmentParser[string] parsers;
 static this()
 {
 	parsers["NaiveNASAEnvironment"] = &parseNaiveNASAEnvironment;
+	parsers["NaiveWikiEnvironment"] = &parseNaiveWikiEnvironment;
 }
 
 private EnvironmentService parseNaiveNASAEnvironment(ElementParser xml)
 {
 	return new NaiveNASAEnvironment();
+}
+
+private EnvironmentService parseNaiveWikiEnvironment(ElementParser xml)
+{
+	return new NaiveWikiEnvironment();
 }
