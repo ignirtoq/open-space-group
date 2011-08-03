@@ -177,7 +177,7 @@ public class Satellite : SimObject
 	
 	private real idealThrust(Vector3 idealVelocity, real timeStep, EnvironmentService environment)
 	{
-		return fmin(MaxThrust, 0.01 / timeStep * Velocity.Length());
+		return fmin(MaxThrust / Mass, 0.01 / timeStep * Velocity.Length());
 	}
 	
 	private @property real area() { return PI * Radius*Radius; }
