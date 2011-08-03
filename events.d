@@ -106,3 +106,18 @@ public class HaltSimEvent : Event
 		sim.IsRunning = false;
 	}
 }
+
+public class ChangeTimeStepEvent : Event
+{
+	public real NewTimeStep;
+	
+	public this(.Trigger trigger)
+	{
+		super(trigger);
+	}
+	
+	public void Apply(Simulation sim)
+	{
+		sim.TimeStep = NewTimeStep;
+	}
+}

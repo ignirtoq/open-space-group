@@ -79,7 +79,7 @@ public class Balloon : SimObject
 
 public class Rocket : SimObject
 {
-	public Vector3 CenterOfPressure;
+	public Vector3 CenterOfPressure = Vector3(0,0,-1);
 	public real ThrustAcceleration;
 	public real BurnTime = 0;
 	public real Mass = 1;
@@ -95,9 +95,9 @@ public class Rocket : SimObject
 		Vector3 gravity = GravitationalForce(Position, Mass);
 		Vector3 drag = DragForce(Position, Velocity, area, 0.5, &environment.Density);
 
-		Vector3 thrustVector = ThrustAcceleration * Velocity.Normalize();
+		Vector3 thrustVector = -ThrustAcceleration * CenterOfPressure.Normalize();
 
-		Vector3 acceleration = gravity;
+		Vector3 acceleration = gravity + drag;
 		if(burnedTime < BurnTime)
 			acceleration = acceleration + thrustVector;
 		Velocity = Velocity + (acceleration * timeStep);

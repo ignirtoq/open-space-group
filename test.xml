@@ -7,25 +7,30 @@
 		<Radius>6.5</Radius>
 		<Mass>5.0</Mass>
 	</SimObject>
-	<SimObject type="Rocket" name="Rocket1">
+	<SimObject type="Rocket" name="Rocket1" reserved="true">
 		<Position x="0" y="0" z="6.3781e6" />
-		<Velocity x="0" y="0" z="0.01" />
+		<Velocity x="0" y="0" z="1" />
 		<AngularVelocity x="0" y="0" z="0" />
 		<Orientation real="0" i="0" j="0" k="0" />
-		<Radius>1</Radius>
-		<Mass>1</Mass>
-		<ThrustAcceleration>20</ThrustAcceleration>
+		<ThrustAcceleration>200</ThrustAcceleration>
 		<BurnTime>100</BurnTime>
+		<Radius>.25</Radius>
+		<Mass>1.0</Mass>
 	</SimObject>
 	<Event type="HaltSimEvent">
-		<Trigger type="FloorTrigger">
-			<TargetName>Rocket1</TargetName>
-			<Floor>6.3781e6</Floor>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon1</TargetName>
 		</Trigger>
 	</Event>
-	<TimeStep>0.5</TimeStep>
+	<Event type="ChangeTimeStepEvent">
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon1</TargetName>
+		</Trigger>
+		<NewTimeStep>0.05</NewTimeStep>
+	</Event>
+	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
-		<TargetName>Rocket1</TargetName>
+		<TargetName>Balloon1</TargetName>
 		<LogInterval>1.0</LogInterval>
 	</Logger>
 	<Environment type="NaiveNASAEnvironment" />
