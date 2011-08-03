@@ -25,44 +25,42 @@ static this()
 
 private Event parseHaltSimEvent(ElementParser xml, SimObject[string] clonableObjects)
 {
-	Trigger eventTrigger = parseTrigger(xml);
-	assert(eventTrigger !is null, "XML has an Event that does not specify a Trigger");
-	return new HaltSimEvent(eventTrigger);
+	auto newEvent = new HaltSimEvent();
+	hookupTriggerParser(xml, newEvent);
+	xml.parse();
+
+	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
+	return newEvent;
 }
 
 private Event parseObjectDestructionEvent(ElementParser xml, SimObject[string] clonableObjects)
 {
-	Trigger eventTrigger = parseTrigger(xml);
-	assert(eventTrigger !is null, "XML has an Event that does not specify a Trigger");
-
-	auto newEvent = new ObjectDestructionEvent(eventTrigger);
+	auto newEvent = new ObjectDestructionEvent();
+	hookupTriggerParser(xml, newEvent);
 	xml.onEndTag["TargetName"] = (in Element e) { newEvent.TargetName = e.text; };
 	xml.parse();
 
+	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
 	return newEvent;
 }
 
 private Event parseChangeTimeStepEvent(ElementParser xml, SimObject[string] clonableObjects)
 {
-	Trigger eventTrigger = parseTrigger(xml);
-	assert(eventTrigger !is null, "XML has an Event that does not specify a Trigger");
-
-	auto newEvent = new ChangeTimeStepEvent(eventTrigger);
+	auto newEvent = new ChangeTimeStepEvent();
+	hookupTriggerParser(xml, newEvent);
 	xml.onEndTag["NewTimeStep"] = (in Element e) { newEvent.NewTimeStep = ParseReal(e); };
 	xml.parse();
 	
+	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
 	return newEvent;
 }
 
-private Trigger parseTrigger(ElementParser xml)
+private void hookupTriggerParser(ElementParser xml, Event event)
 {
-	Trigger trigger;
 	xml.onStartTag["Trigger"] = (ElementParser xml)
 	{
-		assert(trigger is null, "XML has an Event that specifies multiple Triggers");
+		assert(event.Trigger is null, "XML has an Event that specifies multiple Triggers");
 		string typeName = xml.tag.attr["type"];
-		trigger = GetTriggerParser(typeName)(xml);
+		event.Trigger = GetTriggerParser(typeName)(xml);
 	};
-	xml.parse();
-	return trigger;
 }
