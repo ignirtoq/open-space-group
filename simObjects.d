@@ -137,7 +137,7 @@ public class Satellite : SimObject
 		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
 		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.47, &environment.Density);
 		
-		Vector3 acceleration = gravity + drag + thrustVector(timeStep, environment);
+		Vector3 acceleration = gravity + drag + thrustVector(gravity, timeStep, environment);
 		Velocity = Velocity + (acceleration * timeStep);
 		Position = Position + (Velocity * timeStep);
 	}
@@ -154,20 +154,20 @@ public class Satellite : SimObject
 		Velocity = Velocity + ((1.0 / Mass) * impulse);
 	}
 	
-	private Vector3 thrustVector(real timeStep, EnvironmentService environment)
+	private Vector3 thrustVector(Vector3 gravity, real timeStep, EnvironmentService environment)
 	{
 		real idealVelocityMagnitude = sqrt(GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.Length());
 		Vector3 idealVelocity = idealVelocityDirection() * idealVelocityMagnitude;
 		
 		if (Velocity.ComponentInDirection(idealVelocity) < idealVelocityMagnitude)
-			return idealThrust(idealVelocity, timeStep, environment) * idealVelocity.Normalize();
+			return idealThrust(idealVelocity, gravity, timeStep, environment) * idealVelocity.Normalize();
 		else
-			return -idealThrust(idealVelocity, timeStep, environment) * (Velocity - Velocity.ProjectedOnto(idealVelocity)).Normalize();
+			return -idealThrust(idealVelocity, gravity, timeStep, environment) * (Velocity - Velocity.ProjectedOnto(idealVelocity)).Normalize();
 	}
 	
 	private Vector3 idealVelocityDirection()
 	{
-		if (Position.Dot(Velocity) != 0)
+		if (Position.Cross(Velocity).LengthSquared() != 0)
 			return Position.Cross(Velocity.Cross(Position)).Normalize();
 		else if (Position.Cross(Vector3(0,0,1)).LengthSquared() != 0)
 			return Position.RotateBy(Quaternion.FromAxisAngle(Vector3(0,0,1),PI/2)).Normalize();
@@ -175,9 +175,9 @@ public class Satellite : SimObject
 			return Position.RotateBy(Quaternion.FromAxisAngle(Vector3(1,0,0),PI/2)).Normalize();
 	}
 	
-	private real idealThrust(Vector3 idealVelocity, real timeStep, EnvironmentService environment)
+	private real idealThrust(Vector3 idealVelocity, Vector3 gravity, real timeStep, EnvironmentService environment)
 	{
-		return fmin(MaxThrust / Mass, 0.01 / timeStep * Velocity.Length());
+		return fmin(MaxThrust / Mass, gravity.Length() + (Velocity - idealVelocity).Length() / timeStep);
 	}
 	
 	private @property real area() { return PI * Radius*Radius; }
