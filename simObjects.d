@@ -109,6 +109,10 @@ public class Rocket : SimObject
 	public SimObject Clone(string newName)
 	{
 		Rocket newRocket = new Rocket(newName);
+		newRocket.CenterOfPressure = CenterOfPressure;
+		newRocket.ThrustAcceleration = ThrustAcceleration;
+		newRocket.BurnTime = BurnTime;
+		newRocket.Radius = Radius;
 		mixin(CopySimObject!("this", "newRocket"));
 		return newRocket;
 	}
@@ -145,6 +149,8 @@ public class Satellite : SimObject
 	public SimObject Clone(string newName)
 	{
 		Satellite newSatellite = new Satellite(newName);
+		newSatellite.MaxThrust = MaxThrust;
+		newSatellite.Radius = Radius;
 		mixin(CopySimObject!("this", "newSatellite"));
 		return newSatellite;
 	}
