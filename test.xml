@@ -4,8 +4,16 @@
 		<Velocity x="0" y="0" z="0" />
 		<AngularVelocity x="0" y="0" z="0" />
 		<Orientation real="0" i="0" j="0" k="0" />
-		<Radius>6.5</Radius>
-		<Mass>5.0</Mass>
+		<Radius>1.1</Radius>
+		<Mass>1.0</Mass>
+	</SimObject>
+	<SimObject type="Balloon" name="BalloonTemplate" reserved="true">
+		<Position x="0" y="0" z="6.3781e6" />
+		<Velocity x="0" y="0" z="0" />
+		<AngularVelocity x="0" y="0" z="0" />
+		<Orientation real="0" i="0" j="0" k="0" />
+		<Radius>1.1</Radius>
+		<Mass>1.0</Mass>
 	</SimObject>
 	<SimObject type="Rocket" name="Rocket1" reserved="true">
 		<Position x="0" y="0" z="6.3781e6" />
@@ -17,18 +25,20 @@
 		<Radius>.25</Radius>
 		<Mass>1.0</Mass>
 	</SimObject>
+	<Event type="ObjectCreationEvent">
+		<TemplateName>BalloonTemplate</TemplateName>
+		<NewName>Balloon2</NewName>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon1</TargetName>
+		</Trigger>
+	</Event>
 	<Event type="HaltSimEvent">
 		<Trigger type="TurnAroundTrigger">
-			<TargetName>Balloon1</TargetName>
+			<TargetName>Balloon2</TargetName>
 		</Trigger>
 	</Event>
-	<Event type="ChangeTimeStepEvent">
-		<Trigger type="TurnAroundTrigger">
-			<TargetName>Balloon1</TargetName>
-		</Trigger>
-		<NewTimeStep>0.05</NewTimeStep>
-	</Event>
-	<TimeStep>0.1</TimeStep>
+
+	<TimeStep>0.5</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
 		<TargetName>Balloon1</TargetName>
 		<LogInterval>1.0</LogInterval>

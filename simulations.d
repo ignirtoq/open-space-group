@@ -75,7 +75,10 @@ public class Simulation
 			}
 
 			foreach(event; eventsToApply)
+			{
 				event.Apply(this);
+				RemoveEvent(event);
+			}
 
 			foreach(simObject; Objects)
 				simObject.Update(TimeStep, Environment);
