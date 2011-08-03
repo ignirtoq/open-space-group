@@ -4,10 +4,15 @@
 		<Velocity x="0" y="0" z="0" />
 		<AngularVelocity x="0" y="0" z="0" />
 		<Orientation real="0" i="0" j="0" k="0" />
-		<Radius>1.0</Radius>
-		<Mass>1.0</Mass>
+		<Radius>6.5</Radius>
+		<Mass>5.0</Mass>
 	</SimObject>
-	<TimeStep>1</TimeStep>
+	<Event type="HaltSimEvent">
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon1</TargetName>
+		</Trigger>
+	</Event>
+	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
 		<TargetName>Balloon1</TargetName>
 		<LogInterval>1.0</LogInterval>
