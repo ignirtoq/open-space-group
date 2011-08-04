@@ -27,10 +27,24 @@
 			<TargetName>Balloon1</TargetName>
 		</Trigger>
 	</Event>
+	<Event type="ChangeMassEvent">
+		<TargetName>Balloon1</TargetName>
+		<NewMass>1.0</NewMass>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon1</TargetName>
+		</Trigger>
+	</Event>
 	<Event type="ObjectCreationEvent">
 		<TemplateName>SatelliteTemp</TemplateName>
 		<NewName>Satellite1</NewName>
 		<AttributeSourceName>Rocket1</AttributeSourceName>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Rocket1</TargetName>
+		</Trigger>
+	</Event>
+	<Event type="ChangeMassEvent">
+		<TargetName>Rocket1</TargetName>
+		<NewMass>1.0</NewMass>
 		<Trigger type="TurnAroundTrigger">
 			<TargetName>Rocket1</TargetName>
 		</Trigger>
@@ -43,7 +57,7 @@
 	</Event>
 	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
-		<TargetName>Satellite1</TargetName>
+		<TargetName>Rocket1</TargetName>
 		<LogInterval>.50</LogInterval>
 	</Logger>
 	<Environment type="NaiveNASAEnvironment" />

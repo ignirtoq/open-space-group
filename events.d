@@ -75,3 +75,15 @@ public class ChangeTimeStepEvent : Event
 		sim.TimeStep = NewTimeStep;
 	}
 }
+
+public class ChangeMassEvent : Event
+{
+	public real NewMass;
+	public string TargetName;
+	
+	public void Apply(Simulation sim)
+	{
+		SimObject target = sim.FindObject(TargetName);
+		target.Mass = NewMass;
+	}
+}

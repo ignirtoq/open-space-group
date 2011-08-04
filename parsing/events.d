@@ -22,6 +22,7 @@ static this()
 	parsers["ObjectDestructionEvent"] = &parseObjectDestructionEvent;
 	parsers["ObjectCreationEvent"] = &parseObjectCreationEvent;
 	parsers["ChangeTimeStepEvent"] = &parseChangeTimeStepEvent;
+	parsers["ChangeMassEvent"] = &parseChangeMassEvent;
 }
 
 private Event parseHaltSimEvent(ElementParser xml, SimObject[string] clonableObjects)
@@ -67,6 +68,18 @@ private Event parseChangeTimeStepEvent(ElementParser xml, SimObject[string] clon
 	xml.onEndTag["NewTimeStep"] = (in Element e) { newEvent.NewTimeStep = ParseReal(e); };
 	xml.parse();
 	
+	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
+	return newEvent;
+}
+
+private Event parseChangeMassEvent(ElementParser xml, SimObject[string] clonableObjects)
+{
+	auto newEvent = new ChangeMassEvent();
+	hookupTriggerParser(xml, newEvent);
+	xml.onEndTag["TargetName"] = (in Element e) { newEvent.TargetName = e.text; };
+	xml.onEndTag["NewMass"] = (in Element e) { newEvent.NewMass = ParseReal(e); };
+	xml.parse();
+
 	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
 	return newEvent;
 }
