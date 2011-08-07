@@ -5,6 +5,8 @@ import superAwesome.simulations;
 import superAwesome.geometry;
 import std.stdio;
 import std.math;
+import std.file;
+import std.string;
 
 public abstract class Logger
 {
@@ -18,6 +20,7 @@ public class SingleObjectPositionLogger : Logger
 {
 	public real LogInterval;
 	public string TargetName;
+	public bool WriteToConsole = false;
 
 	public void BeginTimeStep(real time)
 	{
@@ -36,7 +39,10 @@ public class SingleObjectPositionLogger : Logger
 			isLogging = false;
 			if(isReadyToLog())
 			{
-				writefln("%f %f %f %f", currentTime, currentPosition.X, currentPosition.Y, currentPosition.Z);
+				if(WriteToConsole)
+					writefln("%f %f %f %f", currentTime, currentPosition.X, currentPosition.Y, currentPosition.Z);
+				else
+					append(TargetName ~ ".pos.dat", format("%f %f %f %f\n", currentTime, currentPosition.X, currentPosition.Y, currentPosition.Z));
 			}
 			currentTime = real.nan;
 			currentPosition = Vector3(real.nan, real.nan, real.nan);

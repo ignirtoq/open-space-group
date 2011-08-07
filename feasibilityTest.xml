@@ -59,6 +59,14 @@
 	</Event>
 	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
+		<TargetName>Balloon1</TargetName>
+		<LogInterval>1.0</LogInterval>
+	</Logger>
+	<Logger type="SingleObjectPositionLogger">
+		<TargetName>Rocket1</TargetName>
+		<LogInterval>1.0</LogInterval>
+	</Logger>
+	<Logger type="SingleObjectPositionLogger">
 		<TargetName>Satellite1</TargetName>
 		<LogInterval>5.0</LogInterval>
 	</Logger>

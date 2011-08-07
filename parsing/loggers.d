@@ -24,6 +24,7 @@ private Logger parseSingleObjectPositionLogger(ElementParser xml)
 
 	xml.onEndTag["TargetName"] = (in Element e) { newLogger.TargetName = e.text; };
 	xml.onEndTag["LogInterval"] = (in Element e) { newLogger.LogInterval = ParseReal(e); };
+	xml.onEndTag["WriteToConsole"] = (in Element e) { newLogger.WriteToConsole = ParseBool(e); };
 	xml.parse();
 
 	return newLogger;

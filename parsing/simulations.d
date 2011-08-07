@@ -54,9 +54,8 @@ public Simulation ParseSimulation(string simFile)
 
 	xmlParser.onStartTag["Logger"] = (ElementParser loggerParser)
 	{
-		assert(parsedSimulation.Logger is null, "XML defines multiple loggers");
 		string typeName = loggerParser.tag.attr["type"];
-		parsedSimulation.Logger = GetLoggerParser(typeName)(loggerParser);
+		parsedSimulation.Loggers ~= GetLoggerParser(typeName)(loggerParser);
 	};
 
 	xmlParser.onEndTag["TimeStep"] = (in Element e) { parsedSimulation.TimeStep = ParseReal(e); };
@@ -64,7 +63,7 @@ public Simulation ParseSimulation(string simFile)
 
 	assert(parsedSimulation.TimeStep > 0, "XML file defined an invalid TimeStep or provided no TimeStep at all");
 	assert(parsedSimulation.Environment !is null, "XML file provided no Environment");
-	assert(parsedSimulation.Logger !is null, "XML file provided no Logger");
+	assert(parsedSimulation.Loggers[0] !is null, "XML file provided no Logger");
 
 	return parsedSimulation;
 }
