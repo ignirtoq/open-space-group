@@ -14,6 +14,7 @@ public abstract class Logger
 	public abstract void EndTimeStep();
 	public abstract void LogSimObject(SimObject simObject);
 	public abstract void LogSimulation(Simulation sim);
+	public abstract void EndSimulation();
 }
 
 public class SingleObjectPositionLogger : Logger
@@ -42,7 +43,7 @@ public class SingleObjectPositionLogger : Logger
 				if(WriteToConsole)
 					writefln("%f %f %f %f", currentTime, currentPosition.X, currentPosition.Y, currentPosition.Z);
 				else
-					append(TargetName ~ ".pos.dat", format("%f %f %f %f\n", currentTime, currentPosition.X, currentPosition.Y, currentPosition.Z));
+					outputFileContent ~= format("%f %f %f %f\n", currentTime, currentPosition.X, currentPosition.Y, currentPosition.Z);
 			}
 			currentTime = real.nan;
 			currentPosition = Vector3(real.nan, real.nan, real.nan);
@@ -63,9 +64,16 @@ public class SingleObjectPositionLogger : Logger
 	{
 		return !(isnan(currentTime) || isnan(currentPosition.X));
 	}
+	
+	void EndSimulation()
+	{
+		remove(TargetName ~ ".pos.dat");
+		append(TargetName ~ ".pos.dat", outputFileContent);
+	}
 
 	private bool isLogging = false;
 	private real lastLog = 0;
 	private real currentTime;
+	private string outputFileContent;
 	private Vector3 currentPosition;
 }
