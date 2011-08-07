@@ -81,8 +81,9 @@ public class Balloon : SimObject
 public class Rocket : SimObject
 {
 	public Vector3 CenterOfPressure = Vector3(0,0,-1);
-	public real ThrustAcceleration;
+	public real Thrust;
 	public real BurnTime = 0;
+	public real FuelMass = 0;
 	public real Radius = 0.15;
 
 	public this(string name)
@@ -95,11 +96,14 @@ public class Rocket : SimObject
 		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
 		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.5, &environment.Density);
 
-		Vector3 thrustVector = -ThrustAcceleration * CenterOfPressure.Normalize();
+		Vector3 thrustVector = -Thrust / Mass * CenterOfPressure.Normalize();
 
 		Vector3 acceleration = gravity + drag;
 		if(burnedTime < BurnTime)
+		{
 			acceleration = acceleration + thrustVector;
+			Mass = Mass - FuelMass * timeStep / BurnTime;
+		}
 		Velocity = Velocity + (acceleration * timeStep);
 		Position = Position + (Velocity * timeStep);
 
@@ -110,8 +114,9 @@ public class Rocket : SimObject
 	{
 		Rocket newRocket = new Rocket(newName);
 		newRocket.CenterOfPressure = CenterOfPressure;
-		newRocket.ThrustAcceleration = ThrustAcceleration;
+		newRocket.Thrust = Thrust;
 		newRocket.BurnTime = BurnTime;
+		newRocket.FuelMass = FuelMass;
 		newRocket.Radius = Radius;
 		mixin(CopySimObject!("this", "newRocket"));
 		return newRocket;
@@ -129,6 +134,7 @@ public class Rocket : SimObject
 public class Satellite : SimObject
 {
 	public real MaxThrust = 1.0;
+	public real BurnTime = 0;
 	public real Radius = 0.1;
 
 	public this(string name)
@@ -140,8 +146,16 @@ public class Satellite : SimObject
 	{
 		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
 		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.47, &environment.Density);
+		Vector3 thrust = Vector3(0,0,0);
 		
-		Vector3 acceleration = gravity + drag + thrustVector(gravity, timeStep, environment);
+		if(BurnTime == 0 || burnedTime < BurnTime)
+		{
+			thrust = thrustVector(gravity, timeStep, environment);
+			if(BurnTime != 0 && thrust != Vector3(0,0,0))
+				burnedTime += timeStep;
+		}
+		
+		Vector3 acceleration = gravity + drag + thrust;
 		Velocity = Velocity + (acceleration * timeStep);
 		Position = Position + (Velocity * timeStep);
 	}
@@ -150,6 +164,7 @@ public class Satellite : SimObject
 	{
 		Satellite newSatellite = new Satellite(newName);
 		newSatellite.MaxThrust = MaxThrust;
+		newSatellite.BurnTime = BurnTime;
 		newSatellite.Radius = Radius;
 		mixin(CopySimObject!("this", "newSatellite"));
 		return newSatellite;
@@ -189,6 +204,7 @@ public class Satellite : SimObject
 		return fmin(MaxThrust / Mass, gravity.Length() + (Velocity - idealVelocity).Length() / timeStep);
 	}
 	
+	private real burnedTime = 0;
 	private @property real area() { return PI * Radius*Radius; }
 }
 
