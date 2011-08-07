@@ -9,13 +9,15 @@
 	</SimObject>
 	<SimObject type="Rocket" name="RocketTemp" reserved="true">
 		<Mass>2.0</Mass>
-		<ThrustAcceleration>200</ThrustAcceleration>
+		<Thrust>200</Thrust>
 		<BurnTime>60</BurnTime>
+		<FuelMass>.025</FuelMass>
 		<Radius>.25</Radius>
 	</SimObject>
 	<SimObject type="Satellite" name="SatelliteTemp" reserved="true">
 		<Mass>1.0</Mass>
 		<MaxThrust>20</MaxThrust>
+		<BurnTime>360</BurnTime>
 		<Radius>0.1</Radius>
 	</SimObject>
 	

@@ -35,8 +35,9 @@ private SimObject parseRocket(ElementParser xml)
 {
 	Rocket newRocket = new Rocket(xml.tag.attr["name"]);
 	readyBaseParser(xml, newRocket);
-	xml.onEndTag["ThrustAcceleration"] = (in Element e) { newRocket.ThrustAcceleration = ParseReal(e); };
+	xml.onEndTag["Thrust"] = (in Element e) { newRocket.Thrust = ParseReal(e); };
 	xml.onEndTag["BurnTime"] = (in Element e) { newRocket.BurnTime = ParseReal(e); };
+	xml.onEndTag["FuelMass"] = (in Element e) { newRocket.FuelMass = ParseReal(e); };
 	xml.onEndTag["Radius"] = (in Element e) { newRocket.Radius = ParseReal(e); };
 	xml.parse();
 	return newRocket;
@@ -47,6 +48,7 @@ private SimObject parseSatellite(ElementParser xml)
 	Satellite newSatellite = new Satellite(xml.tag.attr["name"]);
 	readyBaseParser(xml, newSatellite);
 	xml.onEndTag["MaxThrust"] = (in Element e) { newSatellite.MaxThrust = ParseReal(e); };
+	xml.onEndTag["BurnTime"] = (in Element e) { newSatellite.BurnTime = ParseReal(e); };
 	xml.onEndTag["Radius"] = (in Element e) { newSatellite.Radius = ParseReal(e); };
 	xml.parse();
 	return newSatellite;
