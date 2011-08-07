@@ -3,7 +3,7 @@
 		<Position x="0" y="0" z="6.3781e6" />
 		<Velocity x="0" y="0" z="0" />
 		<AngularVelocity x="0" y="0" z="0" />
-		<Orientation real="0" i="0" j="0" k="0" />
+		<Orientation real="0.707106781" i="0" j="-0.707106781" k="0" />
 		<Radius>3.0</Radius>
 		<Mass>3.0</Mass>
 	</SimObject>
@@ -58,17 +58,17 @@
 		</Trigger>
 	</Event>
 	<TimeStep>0.1</TimeStep>
-	<Logger type="SingleObjectPositionLogger">
+	<!--<Logger type="SingleObjectPositionLogger">
 		<TargetName>Balloon1</TargetName>
 		<LogInterval>1.0</LogInterval>
-	</Logger>
+	</Logger>-->
 	<Logger type="SingleObjectPositionLogger">
 		<TargetName>Rocket1</TargetName>
 		<LogInterval>1.0</LogInterval>
 	</Logger>
-	<Logger type="SingleObjectPositionLogger">
+	<!--<Logger type="SingleObjectPositionLogger">
 		<TargetName>Satellite1</TargetName>
 		<LogInterval>5.0</LogInterval>
-	</Logger>
+	</Logger>-->
 	<Environment type="NaiveNASAEnvironment" />
 </Simulation>

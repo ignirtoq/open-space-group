@@ -86,6 +86,8 @@ public class Simulation
 			foreach(simObject; Objects)
 				simObject.Update(TimeStep, Environment);
 		}
+		foreach(logger; Loggers)
+			logger.EndSimulation();
 		IsRunning = false;
 	}
 
