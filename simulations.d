@@ -12,7 +12,7 @@ public class Simulation
 	public bool IsRunning = false;
 	public real TimeStep;
 	public EnvironmentService Environment;
-	public .Logger Logger;
+	public .Logger[] Loggers;
 
 	public this()
 	{
@@ -60,11 +60,14 @@ public class Simulation
 		IsRunning = true;
 		for(currentTime = startTime; currentTime < endTime && IsRunning; currentTime += TimeStep)
 		{
-			Logger.BeginTimeStep(currentTime);
-			Logger.LogSimulation(this);
-			foreach(simObject; Objects)
-				Logger.LogSimObject(simObject);
-			Logger.EndTimeStep();
+			foreach(logger; Loggers)
+			{
+				logger.BeginTimeStep(currentTime);
+				logger.LogSimulation(this);
+				foreach(simObject; Objects)
+					logger.LogSimObject(simObject);
+				logger.EndTimeStep();
+			}
 
 			Event[] eventsToApply = new Event[0];
 
