@@ -16,6 +16,7 @@ private LoggerParser[string] parsers;
 static this()
 {
 	parsers["SingleObjectPositionLogger"] = &parseSingleObjectPositionLogger;
+	parsers["SingleObjectVelocityLogger"] = &parseSingleObjectVelocityLogger;
 }
 
 private Logger parseSingleObjectPositionLogger(ElementParser xml)
@@ -29,3 +30,28 @@ private Logger parseSingleObjectPositionLogger(ElementParser xml)
 
 	return newLogger;
 }
+
+private Logger parseSingleObjectVelocityLogger(ElementParser xml)
+{
+	SingleObjectVelocityLogger newLogger = new SingleObjectVelocityLogger();
+
+	xml.onEndTag["TargetName"] = (in Element e) { newLogger.TargetName = e.text; };
+	xml.onEndTag["LogInterval"] = (in Element e) { newLogger.LogInterval = ParseReal(e); };
+	xml.onEndTag["WriteToConsole"] = (in Element e) { newLogger.WriteToConsole = ParseBool(e); };
+	xml.parse();
+
+	return newLogger;
+}
+/*
+private Logger parseMultiObjectPositionLogger(ElementParser xml)
+{
+	MultiObjectPositionLogger newLogger = new MultiObjectPositionLogger();
+
+	xml.onEndTag["TargetName"] = (in Element e) { newLogger.TargetNames ~= e.text; };
+	xml.onEndTag["LogInterval"] = (in Element e) { newLogger.LogInterval = ParseReal(e); };
+	xml.onEndTag["WriteToConsole"] = (in Element e) { newLogger.WriteToConsole = ParseBool(e); };
+	xml.parse();
+
+	return newLogger;
+}
+*/
