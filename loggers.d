@@ -60,15 +60,19 @@ public class SingleObjectPositionLogger : Logger
 	
 	public void EndSimulation()
 	{
-		if(!exists("output"))
-			mkdir("output");
-		else
-			assert(isDir("output"),"\"output\" exists and is not a directory.");
+		if(!WriteToConsole)
+		{
+			if(!exists("output"))
+				mkdir("output");
+			else
+				assert(isDir("output"),"\"output\" exists and is not a directory.");
 		
-		chdir("output");
-		if(exists(TargetName ~ ".pos.dat"))
-			remove(TargetName ~ ".pos.dat");
-		append(TargetName ~ ".pos.dat", outputFileContent);
+			chdir("output");
+			if(exists(TargetName ~ ".pos.dat"))
+				remove(TargetName ~ ".pos.dat");
+			append(TargetName ~ ".pos.dat", outputFileContent);
+			chdir("..");
+		}
 	}
 
 	public void LogSimulation(Simulation sim) { }
@@ -128,15 +132,19 @@ public class SingleObjectVelocityLogger : Logger
 	
 	public void EndSimulation()
 	{
-		if(!exists("output"))
-			mkdir("output");
-		else
-			assert(isDir("output"),"\"output\" exists and is not a directory.");
+		if(!WriteToConsole)
+		{
+			if(!exists("output"))
+				mkdir("output");
+			else
+				assert(isDir("output"),"\"output\" exists and is not a directory.");
 		
-		chdir("output");
-		if(exists(TargetName ~ ".vel.dat"))
-			remove(TargetName ~ ".vel.dat");
-		append(TargetName ~ ".vel.dat", outputFileContent);
+			chdir("output");
+			if(exists(TargetName ~ ".vel.dat"))
+				remove(TargetName ~ ".vel.dat");
+			append(TargetName ~ ".vel.dat", outputFileContent);
+			chdir("..");
+		}
 	}
 
 	public void LogSimulation(Simulation sim) { }
