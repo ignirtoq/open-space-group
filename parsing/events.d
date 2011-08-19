@@ -23,6 +23,7 @@ static this()
 	parsers["ObjectCreationEvent"] = &parseObjectCreationEvent;
 	parsers["ChangeTimeStepEvent"] = &parseChangeTimeStepEvent;
 	parsers["ChangeMassEvent"] = &parseChangeMassEvent;
+	parsers["ReorientEvent"] = &parseReorientEvent;
 }
 
 private Event parseHaltSimEvent(ElementParser xml, SimObject[string] clonableObjects)
@@ -78,6 +79,18 @@ private Event parseChangeMassEvent(ElementParser xml, SimObject[string] clonable
 	hookupTriggerParser(xml, newEvent);
 	xml.onEndTag["TargetName"] = (in Element e) { newEvent.TargetName = e.text; };
 	xml.onEndTag["NewMass"] = (in Element e) { newEvent.NewMass = ParseReal(e); };
+	xml.parse();
+
+	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
+	return newEvent;
+}
+
+private Event parseReorientEvent(ElementParser xml, SimObject[string] clonableObjects)
+{
+	auto newEvent = new ReorientEvent();
+	hookupTriggerParser(xml, newEvent);
+	xml.onEndTag["TargetName"] = (in Element e) { newEvent.TargetName = e.text; };
+	xml.onEndTag["Rotation"] = (in Element e) { newEvent.Rotation = ParseQuaternion(e); };
 	xml.parse();
 
 	assert(newEvent.Trigger !is null, "XML has an Event that does not specify a Trigger");
