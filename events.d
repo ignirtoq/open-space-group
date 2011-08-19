@@ -87,3 +87,15 @@ public class ChangeMassEvent : Event
 		target.Mass = NewMass;
 	}
 }
+
+public class ReorientEvent : Event
+{
+	public Quaternion Rotation;
+	public string TargetName;
+	
+	public void Apply(Simulation sim)
+	{
+		SimObject target = sim.FindObject(TargetName);
+		target.Orientation = Rotation * target.Orientation;
+	}
+}

@@ -77,3 +77,39 @@ public class FloorTrigger : Trigger
 		return false;
 	}
 }
+
+public class TangentVelocityTrigger : Trigger
+{
+	public string TargetName;
+	
+	public bool IsTriggered(Simulation sim)
+	{
+		auto target = sim.FindObject(TargetName);
+		if(target is null)
+		{
+			reset();
+			return false;
+		}
+
+		scope(exit) lastVelocity = target.Velocity;
+	
+		if(hasPreviousVelocity)
+		{
+			if(lastVelocity.Dot(target.Position) > 0 && target.Velocity.Dot(target.Position) <= 0)
+				return true;
+			else
+				return false;
+
+		}
+		hasPreviousVelocity = true;
+		return false;
+	}
+
+	private void reset()
+	{
+		hasPreviousVelocity = false;
+	}
+	
+	private Vector3 lastVelocity;
+	private bool hasPreviousVelocity = false;
+}

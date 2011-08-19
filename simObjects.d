@@ -80,7 +80,7 @@ public class Balloon : SimObject
 
 public class Rocket : SimObject
 {
-	public Vector3 CenterOfPressure = Vector3(-1,0,0);
+	public Vector3 CenterOfPressure = Vector3(0,0,-1);
 	public real Thrust;
 	public real BurnTime = 0;
 	public real FuelMass = 0;
@@ -148,7 +148,7 @@ public class Satellite : SimObject
 		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.47, &environment.Density);
 		Vector3 thrust = Vector3(0,0,0);
 		
-		if(BurnTime == 0 || burnedTime < BurnTime)
+		if(BurnTime == 0 && burnedTime < BurnTime)
 		{
 			thrust = thrustVector(gravity, timeStep, environment);
 			if(BurnTime != 0 && thrust != Vector3(0,0,0))
