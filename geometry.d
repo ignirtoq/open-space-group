@@ -5,6 +5,8 @@ import std.math;
 
 public struct Vector3
 {
+	public real X,Y,Z;
+
 	public string toString()
 	{
 		return format("(%f, %f, %f)", X, Y, Z);
@@ -92,8 +94,6 @@ public struct Vector3
 		
 		return (rotation*Quaternion(0,this)*rotation.Conjugate()).Vector;
 	}
-	
-	public real X,Y,Z;
 }
 
 public struct Quaternion
@@ -118,6 +118,9 @@ public struct Quaternion
 	
 	public static Quaternion FromAxisAngle(Vector3 axis, real angle)
 	{
+		if(angle == 0)
+			return Quaternion(1,Vector3(0,0,0));
+
 		return Quaternion(cos(angle/2),sin(angle/2)*axis);
 	}
 	

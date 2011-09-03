@@ -19,11 +19,11 @@
 		<Position x="0" y="0" z="6.3781e6" />
 		<Velocity x="0" y="0" z="0" />
 		<AngularVelocity x="0" y="0" z="0" />
-		<Orientation real="0" i="0" j="0" k="0" />
-		<MomentOfInertia x="0" y="0" z="0" />
+		<Orientation real="1" i="0" j="0" k="0" />
+		<MomentOfInertia x="1" y="1" z="1" />
 		<Mass>1.0</Mass>
-		<ThrustAcceleration>200</ThrustAcceleration>
-		<BurnTime>100</BurnTime>
+		<Thrust>100</Thrust>
+		<BurnTime>60</BurnTime>
 		<Radius>.25</Radius>
 	</SimObject>
 	<SimObject type="Satellite" name="Satellite1" reserved="true">
@@ -47,13 +47,13 @@
 	<Event type="HaltSimEvent">
 		<Trigger type="FloorTrigger">
 			<TargetName>Rocket1</TargetName>
-			<Floor>6.378e6</Floor>
+			<Floor>6.37809e6</Floor>
 		</Trigger>
 	</Event>
 	<TimeStep>0.1</TimeStep>
 	<Logger type="SingleObjectPositionLogger">
 		<TargetName>Rocket1</TargetName>
-		<LogInterval>.50</LogInterval>
+		<LogInterval>0.0</LogInterval>
 	</Logger>
 	<Environment type="NaiveNASAEnvironment" />
 </Simulation>

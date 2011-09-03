@@ -24,7 +24,7 @@ public abstract class SimObject
 	public Quaternion Orientation;
 	public Vector3 AngularVelocity;
 	public real Mass = 1.0;
-	public Vector3 MomentOfInertia;
+	public Vector3 MomentOfInertia = Vector3(1,1,1);
 
 	public @property string Name() { return name; }
 	private string name;
@@ -95,10 +95,16 @@ public class Rocket : SimObject
 	{
 		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
 		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.5, &environment.Density);
+		Vector3 dragParallel = drag.ProjectedOnto(CenterOfPressure.RotateBy(Orientation));
+
+		Vector3 dragOrthogonal = drag - dragParallel;
+		Vector3 torque = Mass * CenterOfPressure.RotateBy(Orientation).Cross(dragOrthogonal);
+		Vector3 localTorque = torque.RotateBy(Orientation.Conjugate());
+		Vector3 angularAcceleration = Vector3(localTorque.X / MomentOfInertia.X, localTorque.Y / MomentOfInertia.Y, localTorque.Z / MomentOfInertia.Z);
 
 		Vector3 thrustVector = -Thrust / Mass * CenterOfPressure.RotateBy(Orientation).Normalize();
 
-		Vector3 acceleration = gravity + drag;
+		Vector3 acceleration = gravity + dragParallel;
 		if(burnedTime < BurnTime)
 		{
 			acceleration = acceleration + thrustVector;
@@ -106,6 +112,7 @@ public class Rocket : SimObject
 		}
 		Velocity = Velocity + (acceleration * timeStep);
 		Position = Position + (Velocity * timeStep);
+		Orientation = Quaternion.FromAxisAngle(angularAcceleration.Normalize(), angularAcceleration.Length() * timeStep) * Orientation;
 
 		burnedTime += timeStep;
 	}
