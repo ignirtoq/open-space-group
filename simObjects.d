@@ -39,6 +39,7 @@ public abstract class SimObject
 	
 	public this(string name)
 	{
+		State = new PhysicalState();
 		this.name = name;
 	}
 }
