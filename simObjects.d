@@ -17,7 +17,6 @@ template CopySimObject(string from, string to)
 	" ~ to ~ ".State.AngularMomentum = " ~ from ~ ".State.AngularMomentum;
 	" ~ to ~ ".State.Mass = " ~ from ~ ".State.Mass;
 	" ~ to ~ ".State.MomentOfInertia = " ~ from ~ ".State.MomentOfInertia;
-	" ~ to ~ ".State.CalculateSecondaries();
 	";
 }
 
@@ -207,6 +206,7 @@ public class TestRotationalObject : SimObject
 			return Vector3(0,0,0.00001);
 		}
 
+		writeln(State.Orientation);
 		State.Update(timeStep, &force, &torque);
 	}
 	
