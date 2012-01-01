@@ -206,7 +206,6 @@ public class TestRotationalObject : SimObject
 			return Vector3(0,0,0.00001);
 		}
 
-		writeln(State.Orientation);
 		State.Update(timeStep, &force, &torque);
 	}
 	
