@@ -10,11 +10,11 @@ public class PhysicalState
 	public Vector3 AngularMomentum;
 	
 	public @property real Mass(){ return mass; }
-	public @property real Mass(real value){ mass = value; inverseMass = 1.0/mass; return mass; }
+	public @property real Mass(real value){ mass = value; inverseMass = 1.0/value; return mass; }
 	private real mass;
 
 	public @property Matrix3 MomentOfInertia(){ return momentOfInertia; }
-	public @property Matrix3 MomentOfInertia(Matrix3 value){ momentOfInertia = value; inverseMomentOfInertia = momentOfInertia.Inverse(); return momentOfInertia; }
+	public @property Matrix3 MomentOfInertia(Matrix3 value){ momentOfInertia = value; inverseMomentOfInertia = value.Inverse(); return momentOfInertia; }
 	private Matrix3 momentOfInertia;
 
 	//Secondaries
