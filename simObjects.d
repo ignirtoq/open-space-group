@@ -1,5 +1,6 @@
 module superAwesome.simObjects;
 
+import superAwesome.physics;
 import superAwesome.environments;
 import superAwesome.geometry;
 import superAwesome.constants;
@@ -10,23 +11,19 @@ import std.stdio;
 template CopySimObject(string from, string to)
 {
 	const string CopySimObject = "
-	" ~ to ~ ".Position = " ~ from ~ ".Position;
-	" ~ to ~ ".Velocity = " ~ from ~ ".Velocity;
-	" ~ to ~ ".Orientation = " ~ from ~ ".Orientation;
-	" ~ to ~ ".AngularMomentum = " ~ from ~ ".AngularMomentum;
-	" ~ to ~ ".Mass = " ~ from ~ ".Mass;
-	" ~ to ~ ".MomentOfInertia = " ~ from ~ ".MomentOfInertia;
+	" ~ to ~ ".State.Position = " ~ from ~ ".State.Position;
+	" ~ to ~ ".State.Velocity = " ~ from ~ ".State.Velocity;
+	" ~ to ~ ".State.Orientation = " ~ from ~ ".State.Orientation;
+	" ~ to ~ ".State.AngularMomentum = " ~ from ~ ".State.AngularMomentum;
+	" ~ to ~ ".State.Mass = " ~ from ~ ".State.Mass;
+	" ~ to ~ ".State.MomentOfInertia = " ~ from ~ ".State.MomentOfInertia;
+	" ~ to ~ ".State.CalculateSecondaries();
 	";
 }
 
 public abstract class SimObject
 {
-	public Vector3 Position;
-	public Vector3 Velocity;
-	public Quaternion Orientation;
-	public Vector3 AngularMomentum;
-	public real Mass = 1.0;
-	public Matrix3 MomentOfInertia = Matrix3([[0,0,0],[0,0,0],[0,0,0]]);
+	public PhysicalState State;
 
 	public @property string Name() { return name; }
 	private string name;
@@ -52,27 +49,31 @@ public class Balloon : SimObject
 
 	public void Update(real timeStep, EnvironmentService environment)
 	{
-		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
-		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, dragConstant, &environment.Density);
-		Vector3 buoyancy = (1.0 / Mass) * BuoyantForce(Position, Mass, volume, &environment.Density);
+		Vector3 force(PhysicalState state)
+		{
+			return GravitationalForce(state.Position, state.Mass)
+				+ DragForce(state.Position, state.Velocity, area, dragConstant, &environment.Density)
+				+ BuoyantForce(state.Position, state.Mass, volume, &environment.Density);
+		}
+		
+		Vector3 torque(PhysicalState state)
+		{
+			return Vector3(0,0,0);
+		}
 
-		Vector3 acceleration = gravity + buoyancy + drag;
-		Velocity = Velocity + (acceleration * timeStep);
-		Position = Position + (Velocity * timeStep);
+		State.Update(timeStep, &force, &torque);
 	}
 
 	public SimObject Clone(string newName)
 	{
 		Balloon newBalloon = new Balloon(newName);
-		newBalloon.Radius = Radius;
-		newBalloon.Mass = Mass;
 		mixin(CopySimObject!("this", "newBalloon"));
 		return newBalloon;
 	}
 
 	public void ApplyImpulse(Vector3 impulse)
 	{
-		Velocity = Velocity + ((1.0 / Mass) * impulse);
+		State.Velocity = State.Velocity + ((1.0 / State.Mass) * impulse);
 	}
 	
 	private @property real volume() { return 4.0/3.0 * PI * pow(Radius, 3); }
@@ -95,27 +96,27 @@ public class Rocket : SimObject
 	
 	public void Update(real timeStep, EnvironmentService environment)
 	{
-		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
-		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.5, &environment.Density);
-		Vector3 dragParallel = drag.ProjectedOnto(CenterOfPressure.RotateBy(Orientation));
-
-		Vector3 dragOrthogonal = drag - dragParallel;
-		Vector3 torque = Mass * CenterOfPressure.RotateBy(Orientation).Cross(dragOrthogonal);
-		Vector3 localTorque = torque.RotateBy(Orientation.Conjugate());
-		//Vector3 angularAcceleration = Vector3(localTorque.X / MomentOfInertia.X, localTorque.Y / MomentOfInertia.Y, localTorque.Z / MomentOfInertia.Z);
-
-		Vector3 thrustVector = -Thrust / Mass * CenterOfPressure.RotateBy(Orientation).Normalize();
-
-		Vector3 acceleration = gravity + dragParallel;
-		if(burnedTime < BurnTime)
+		Vector3 force(PhysicalState state)
 		{
-			acceleration = acceleration + thrustVector;
-			Mass = Mass - FuelMass * timeStep / BurnTime;
+			Vector3 f = GravitationalForce(state.Position, state.Mass)
+				+ DragForce(state.Position, state.Velocity, area, 0.5, &environment.Density).ProjectedOnto(CenterOfPressure.RotateBy(state.Orientation));
+			if(burnedTime < BurnTime)
+				f = f + -Thrust * CenterOfPressure.RotateBy(state.Orientation).Normalize();
+			return f;
 		}
-		Velocity = Velocity + (acceleration * timeStep);
-		Position = Position + (Velocity * timeStep);
-		//Orientation = Quaternion.FromAxisAngle(angularAcceleration.Normalize(), angularAcceleration.Length() * timeStep) * Orientation;
+		
+		Vector3 torque(PhysicalState state)
+		{
+			Vector3 drag = DragForce(state.Position, state.Velocity, area, 0.5, &environment.Density);
+			Vector3 dragParallel = drag.ProjectedOnto(CenterOfPressure.RotateBy(state.Orientation));
+			Vector3 dragOrthogonal = drag-dragParallel;
+			return CenterOfPressure.RotateBy(state.Orientation).Cross(dragOrthogonal);
+		}
 
+		State.Update(timeStep, &force, &torque);
+
+		if(burnedTime < BurnTime)
+			State.Mass = State.Mass - FuelMass * timeStep / BurnTime;
 		burnedTime += timeStep;
 	}
 	
@@ -133,7 +134,7 @@ public class Rocket : SimObject
 
 	public void ApplyImpulse(Vector3 impulse)
 	{
-		Velocity = Velocity + ((1.0 / Mass) * impulse);
+		State.Velocity = State.Velocity + ((1.0 / State.Mass) * impulse);
 	}
 
 	private real burnedTime = 0;
@@ -142,8 +143,6 @@ public class Rocket : SimObject
 
 public class Satellite : SimObject
 {
-	public real MaxThrust = 1.0;
-	public real BurnTime = 0;
 	public real Radius = 0.1;
 
 	public this(string name)
@@ -153,27 +152,23 @@ public class Satellite : SimObject
 	
 	public void Update(real timeStep, EnvironmentService environment)
 	{
-		Vector3 gravity = (1.0 / Mass) * GravitationalForce(Position, Mass);
-		Vector3 drag = (1.0 / Mass) * DragForce(Position, Velocity, area, 0.47, &environment.Density);
-		Vector3 thrust = Vector3(0,0,0);
-		
-		if(BurnTime == 0 && burnedTime < BurnTime)
+		Vector3 force(PhysicalState state)
 		{
-			thrust = thrustVector(gravity, timeStep, environment);
-			if(BurnTime != 0 && thrust != Vector3(0,0,0))
-				burnedTime += timeStep;
+			return GravitationalForce(state.Position, state.Mass)
+				+ DragForce(state.Position, state.Velocity, area, 0.47, &environment.Density);
 		}
-		
-		Vector3 acceleration = gravity + drag + thrust;
-		Velocity = Velocity + (acceleration * timeStep);
-		Position = Position + (Velocity * timeStep);
+
+		Vector3 torque(PhysicalState state)
+		{
+			return Vector3(0,0,0);
+		}
+			
+		State.Update(timeStep, &force, &torque);
 	}
 	
 	public SimObject Clone(string newName)
 	{
 		Satellite newSatellite = new Satellite(newName);
-		newSatellite.MaxThrust = MaxThrust;
-		newSatellite.BurnTime = BurnTime;
 		newSatellite.Radius = Radius;
 		mixin(CopySimObject!("this", "newSatellite"));
 		return newSatellite;
@@ -181,39 +176,9 @@ public class Satellite : SimObject
 
 	public void ApplyImpulse(Vector3 impulse)
 	{
-		Velocity = Velocity + ((1.0 / Mass) * impulse);
+		State.Velocity = State.Velocity + ((1.0 / State.Mass) * impulse);
 	}
 	
-	private Vector3 thrustVector(Vector3 gravity, real timeStep, EnvironmentService environment)
-	{
-		real idealVelocityMagnitude = sqrt(GRAVITATIONAL_CONSTANT * MASS_OF_EARTH / Position.Length());
-		Vector3 idealVelocity = idealVelocityDirection() * idealVelocityMagnitude;
-		
-		if (Velocity.ComponentInDirection(idealVelocity) < idealVelocityMagnitude)
-			return idealThrust(idealVelocity, gravity, timeStep, environment) * idealVelocity.Normalize();
-		else
-			return -idealThrust(idealVelocity, gravity, timeStep, environment) * (Velocity - Velocity.ProjectedOnto(idealVelocity)).Normalize();
-	}
-	
-	private Vector3 idealVelocityDirection()
-	{
-		if (Position.Cross(Velocity).LengthSquared() != 0)
-			return Position.Cross(Velocity.Cross(Position)).Normalize();
-		else if (Position.Cross(Vector3(0,0,1)).LengthSquared() != 0)
-			return Position.RotateBy(Quaternion.FromAxisAngle(Vector3(0,0,1),PI/2)).Normalize();
-		else
-			return Position.RotateBy(Quaternion.FromAxisAngle(Vector3(1,0,0),PI/2)).Normalize();
-	}
-	
-	private real idealThrust(Vector3 idealVelocity, Vector3 gravity, real timeStep, EnvironmentService environment)
-	{
-		if ((idealVelocity - Velocity).Length() / idealVelocity.Length() < 0.02)
-			return 0.0;
-	
-		return fmin(MaxThrust / Mass, gravity.Length() + (Velocity - idealVelocity).Length() / timeStep);
-	}
-	
-	private real burnedTime = 0;
 	private @property real area() { return PI * Radius*Radius; }
 }
 
@@ -226,14 +191,17 @@ public class TestRotationalObject : SimObject
 
 	public void Update(real timeStep, EnvironmentService environment)
 	{
-		Vector3 acceleration = Vector3(0,0,0);
-		Vector3 torque = Vector3(0,0,0.00001);
-		
-		Velocity = applyAcceleration(Velocity, acceleration, timeStep);
-		Position = applyVelocity(Position, Velocity, timeStep);
-		AngularMomentum = applyTorque(AngularMomentum, torque, timeStep);
-		Orientation = applyAngularVelocity(Orientation, MomentOfInertia.Inverse().MultiplyVector(AngularMomentum), timeStep);
-		
+		Vector3 force(PhysicalState state)
+		{
+			return Vector3(0,0,0);
+		}
+	
+		Vector3 torque(PhysicalState state)
+		{
+			return Vector3(0,0,0.00001);
+		}
+
+		State.Update(timeStep, &force, &torque);
 	}
 	
 	private Vector3 applyVelocity(Vector3 position, Vector3 velocity, real timeStep)
@@ -259,14 +227,13 @@ public class TestRotationalObject : SimObject
 	public SimObject Clone(string newName)
 	{
 		TestRotationalObject newRotObject = new TestRotationalObject(newName);
-		newRotObject.Mass = Mass;
 		mixin(CopySimObject!("this", "newRotObject"));
 		return newRotObject;
 	}
 
 	public void ApplyImpulse(Vector3 impulse)
 	{
-		Velocity = Velocity + ((1.0 / Mass) * impulse);
+		State.Velocity = State.Velocity + ((1.0 / State.Mass) * impulse);
 	}
 }
 
