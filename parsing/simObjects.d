@@ -80,5 +80,4 @@ private void readyBaseParser(ElementParser xml, SimObject simObject)
 	simObject.State.MomentOfInertia.Components[0][2] = column.X;
 	simObject.State.MomentOfInertia.Components[1][2] = column.Y;
 	simObject.State.MomentOfInertia.Components[2][2] = column.Z;};
-	simObject.State.CalculateSecondaries();
 }

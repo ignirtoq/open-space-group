@@ -8,18 +8,21 @@ public class PhysicalState
 	public Vector3 Velocity;
 	public Quaternion Orientation;
 	public Vector3 AngularMomentum;
-	public real Mass;
-	public Matrix3 MomentOfInertia;
+	
+	public @property real Mass(){ return mass; }
+	public @property real Mass(real value){ mass = value; inverseMass = 1.0/mass; return mass; }
+	private real mass;
+
+	public @property Matrix3 MomentOfInertia(){ return momentOfInertia; }
+	public @property Matrix3 MomentOfInertia(Matrix3 value){ momentOfInertia = value; inverseMomentOfInertia = momentOfInertia.Inverse(); return momentOfInertia; }
+	private Matrix3 momentOfInertia;
 
 	//Secondaries
-	public real InverseMass;
-	public Matrix3 InverseMomentOfInertia;
+	public @property real InverseMass(){ return inverseMass; }
+	private real inverseMass;
 
-	public void CalculateSecondaries()
-	{
-		InverseMass = 1.0/Mass;
-		InverseMomentOfInertia = MomentOfInertia.Inverse();
-	}
+	public @property Matrix3 InverseMomentOfInertia(){ return inverseMomentOfInertia; }
+	private Matrix3 inverseMomentOfInertia;
 
 	public void Update(real timeStep, Vector3 delegate(PhysicalState) force, Vector3 delegate(PhysicalState) torque)
 	{
