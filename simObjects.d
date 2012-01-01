@@ -28,6 +28,11 @@ public abstract class SimObject
 	public @property string Name() { return name; }
 	private string name;
 	
+	public this()
+	{
+		State = new PhysicalState();
+	}
+	
 	public abstract void Update(real timeStep, EnvironmentService environment);
 	public abstract SimObject Clone(string newName);
 	public abstract void ApplyImpulse(Vector3 impulse);
