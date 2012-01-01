@@ -42,7 +42,7 @@ public class ObjectCreationEvent : Event
 			newObject.Position = attributeSource.Position;
 			newObject.Velocity = attributeSource.Velocity;
 			newObject.Orientation = attributeSource.Orientation;
-			newObject.AngularVelocity = attributeSource.AngularVelocity;
+			newObject.AngularMomentum = attributeSource.AngularMomentum;
 		}
 		sim.AddObject(newObject);
 	}
