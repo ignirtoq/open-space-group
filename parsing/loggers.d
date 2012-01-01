@@ -16,12 +16,25 @@ private LoggerParser[string] parsers;
 static this()
 {
 	parsers["SingleObjectPositionLogger"] = &parseSingleObjectPositionLogger;
+	parsers["SingleObjectOrientationLogger"] = &parseSingleObjectOrientationLogger;
 	parsers["SingleObjectVelocityLogger"] = &parseSingleObjectVelocityLogger;
 }
 
 private Logger parseSingleObjectPositionLogger(ElementParser xml)
 {
 	SingleObjectPositionLogger newLogger = new SingleObjectPositionLogger();
+
+	xml.onEndTag["TargetName"] = (in Element e) { newLogger.TargetName = e.text; };
+	xml.onEndTag["LogInterval"] = (in Element e) { newLogger.LogInterval = ParseReal(e); };
+	xml.onEndTag["WriteToConsole"] = (in Element e) { newLogger.WriteToConsole = ParseBool(e); };
+	xml.parse();
+
+	return newLogger;
+}
+
+private Logger parseSingleObjectOrientationLogger(ElementParser xml)
+{
+	SingleObjectOrientationLogger newLogger = new SingleObjectOrientationLogger();
 
 	xml.onEndTag["TargetName"] = (in Element e) { newLogger.TargetName = e.text; };
 	xml.onEndTag["LogInterval"] = (in Element e) { newLogger.LogInterval = ParseReal(e); };
