@@ -1,6 +1,7 @@
 module superAwesome.physics;
 
 import superAwesome.geometry;
+import std.stdio;
 
 public class PhysicalState
 {

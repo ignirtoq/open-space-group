@@ -68,16 +68,31 @@ private void readyBaseParser(ElementParser xml, SimObject simObject)
 	xml.onEndTag["AngularMomentum"] = (in Element e) { simObject.State.AngularMomentum = ParseVector3(e); };
 	xml.onEndTag["Orientation"] = (in Element e) { simObject.State.Orientation = ParseQuaternion(e); };
 	xml.onEndTag["Mass"] = (in Element e) { simObject.State.Mass = ParseReal(e); };
-	xml.onEndTag["InertiaColumn1"] = (in Element e) { Vector3 column = ParseVector3(e);
-	simObject.State.MomentOfInertia.Components[0][0] = column.X;
-	simObject.State.MomentOfInertia.Components[1][0] = column.Y;
-	simObject.State.MomentOfInertia.Components[2][0] = column.Z;};
-	xml.onEndTag["InertiaColumn2"] = (in Element e) { Vector3 column = ParseVector3(e);
-	simObject.State.MomentOfInertia.Components[0][1] = column.X;
-	simObject.State.MomentOfInertia.Components[1][1] = column.Y;
-	simObject.State.MomentOfInertia.Components[2][1] = column.Z;};
-	xml.onEndTag["InertiaColumn3"] = (in Element e) { Vector3 column = ParseVector3(e);
-	simObject.State.MomentOfInertia.Components[0][2] = column.X;
-	simObject.State.MomentOfInertia.Components[1][2] = column.Y;
-	simObject.State.MomentOfInertia.Components[2][2] = column.Z;};
+	xml.onStartTag["MomentOfInertia"] = (ElementParser momentParser) 
+	{
+		Matrix3 moment;
+		xml.onEndTag["Column1"] = (in Element e) 
+		{ 
+			Vector3 column = ParseVector3(e);
+			moment.Components[0][0] = column.X;
+			moment.Components[1][0] = column.Y;
+			moment.Components[2][0] = column.Z;
+		};
+		xml.onEndTag["Column2"] = (in Element e) 
+		{ 
+			Vector3 column = ParseVector3(e);
+			moment.Components[0][1] = column.X;
+			moment.Components[1][1] = column.Y;
+			moment.Components[2][1] = column.Z;
+		};
+		xml.onEndTag["Column3"] = (in Element e) 
+		{ 
+			Vector3 column = ParseVector3(e);
+			moment.Components[0][2] = column.X;
+			moment.Components[1][2] = column.Y;
+			moment.Components[2][2] = column.Z;
+		};
+		xml.parse();
+		simObject.State.MomentOfInertia = moment;
+	};
 }
