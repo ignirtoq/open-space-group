@@ -39,10 +39,11 @@ public class ObjectCreationEvent : Event
 
 		if(attributeSource !is null)
 		{
-			newObject.Position = attributeSource.Position;
-			newObject.Velocity = attributeSource.Velocity;
-			newObject.Orientation = attributeSource.Orientation;
-			newObject.AngularMomentum = attributeSource.AngularMomentum;
+			newObject.State.Position = attributeSource.State.Position;
+			newObject.State.Velocity = attributeSource.State.Velocity;
+			newObject.State.Orientation = attributeSource.State.Orientation;
+			newObject.State.AngularMomentum = attributeSource.State.AngularMomentum;
+			newObject.State.CalculateSecondaries();
 		}
 		sim.AddObject(newObject);
 	}
@@ -84,7 +85,8 @@ public class ChangeMassEvent : Event
 	public void Apply(Simulation sim)
 	{
 		SimObject target = sim.FindObject(TargetName);
-		target.Mass = NewMass;
+		target.State.Mass = NewMass;
+		target.State.CalculateSecondaries();
 	}
 }
 
@@ -96,6 +98,7 @@ public class ReorientEvent : Event
 	public void Apply(Simulation sim)
 	{
 		SimObject target = sim.FindObject(TargetName);
-		target.Orientation = Rotation * target.Orientation;
+		target.State.Orientation = Rotation * target.State.Orientation;
+		target.State.CalculateSecondaries();
 	}
 }

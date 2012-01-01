@@ -22,11 +22,11 @@ public class TurnAroundTrigger : Trigger
 			return false;
 		}
 
-		scope(exit) lastVelocity = target.Velocity;
+		scope(exit) lastVelocity = target.State.Velocity;
 	
 		if(hasPreviousVelocity)
 		{
-			if(lastVelocity.Dot(target.Velocity) < 0)
+			if(lastVelocity.Dot(target.State.Velocity) < 0)
 				return true;
 			else
 				return false;
@@ -61,7 +61,7 @@ public class FloorTrigger : Trigger
 	private bool isTriggeredForTarget(string targetName, Simulation sim)
 	{
 		auto target = sim.FindObject(targetName);
-		if(target !is null && target.Position.Length() < Floor)
+		if(target !is null && target.State.Position.Length() < Floor)
 			return true;
 		else
 			return false;
@@ -71,7 +71,7 @@ public class FloorTrigger : Trigger
 	{
 		foreach(simObject; sim.Objects)
 		{
-			if(simObject.Position.Length() < Floor)
+			if(simObject.State.Position.Length() < Floor)
 				return true;
 		}
 		return false;
@@ -91,11 +91,11 @@ public class TangentVelocityTrigger : Trigger
 			return false;
 		}
 
-		scope(exit) lastVelocity = target.Velocity;
+		scope(exit) lastVelocity = target.State.Velocity;
 	
 		if(hasPreviousVelocity)
 		{
-			if(lastVelocity.Dot(target.Position) > 0 && target.Velocity.Dot(target.Position) <= 0)
+			if(lastVelocity.Dot(target.State.Position) > 0 && target.State.Velocity.Dot(target.State.Position) <= 0)
 				return true;
 			else
 				return false;

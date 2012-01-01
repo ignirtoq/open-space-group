@@ -54,7 +54,7 @@ public class SingleObjectPositionLogger : Logger
 	{
 		if(isLogging && simObject.Name == TargetName)
 		{
-			currentPosition = simObject.Position;
+			currentPosition = simObject.State.Position;
 		}
 	}
 	
@@ -126,7 +126,7 @@ public class SingleObjectVelocityLogger : Logger
 	{
 		if(isLogging && simObject.Name == TargetName)
 		{
-			currentVelocity = simObject.Velocity;
+			currentVelocity = simObject.State.Velocity;
 		}
 	}
 	
@@ -198,7 +198,7 @@ public class SingleObjectOrientationLogger : Logger
 	{
 		if(isLogging && simObject.Name == TargetName)
 		{
-			currentOrientation = simObject.Orientation;
+			currentOrientation = simObject.State.Orientation;
 			currentAxis = Vector3(1,0,0).RotateBy(currentOrientation);
 		}
 	}

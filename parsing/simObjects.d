@@ -48,8 +48,6 @@ private SimObject parseSatellite(ElementParser xml)
 {
 	Satellite newSatellite = new Satellite(xml.tag.attr["name"]);
 	readyBaseParser(xml, newSatellite);
-	xml.onEndTag["MaxThrust"] = (in Element e) { newSatellite.MaxThrust = ParseReal(e); };
-	xml.onEndTag["BurnTime"] = (in Element e) { newSatellite.BurnTime = ParseReal(e); };
 	xml.onEndTag["Radius"] = (in Element e) { newSatellite.Radius = ParseReal(e); };
 	xml.parse();
 	return newSatellite;
@@ -65,21 +63,22 @@ private SimObject parseTestRotationalObject(ElementParser xml)
 
 private void readyBaseParser(ElementParser xml, SimObject simObject)
 {
-	xml.onEndTag["Position"] = (in Element e) { simObject.Position = ParseVector3(e); };
-	xml.onEndTag["Velocity"] = (in Element e) { simObject.Velocity = ParseVector3(e); };
-	xml.onEndTag["AngularMomentum"] = (in Element e) { simObject.AngularMomentum = ParseVector3(e); };
-	xml.onEndTag["Orientation"] = (in Element e) { simObject.Orientation = ParseQuaternion(e); };
-	xml.onEndTag["Mass"] = (in Element e) { simObject.Mass = ParseReal(e); };
+	xml.onEndTag["Position"] = (in Element e) { simObject.State.Position = ParseVector3(e); };
+	xml.onEndTag["Velocity"] = (in Element e) { simObject.State.Velocity = ParseVector3(e); };
+	xml.onEndTag["AngularMomentum"] = (in Element e) { simObject.State.AngularMomentum = ParseVector3(e); };
+	xml.onEndTag["Orientation"] = (in Element e) { simObject.State.Orientation = ParseQuaternion(e); };
+	xml.onEndTag["Mass"] = (in Element e) { simObject.State.Mass = ParseReal(e); };
 	xml.onEndTag["InertiaColumn1"] = (in Element e) { Vector3 column = ParseVector3(e);
-	simObject.MomentOfInertia.Components[0][0] = column.X;
-	simObject.MomentOfInertia.Components[1][0] = column.Y;
-	simObject.MomentOfInertia.Components[2][0] = column.Z;};
+	simObject.State.MomentOfInertia.Components[0][0] = column.X;
+	simObject.State.MomentOfInertia.Components[1][0] = column.Y;
+	simObject.State.MomentOfInertia.Components[2][0] = column.Z;};
 	xml.onEndTag["InertiaColumn2"] = (in Element e) { Vector3 column = ParseVector3(e);
-	simObject.MomentOfInertia.Components[0][1] = column.X;
-	simObject.MomentOfInertia.Components[1][1] = column.Y;
-	simObject.MomentOfInertia.Components[2][1] = column.Z;};
+	simObject.State.MomentOfInertia.Components[0][1] = column.X;
+	simObject.State.MomentOfInertia.Components[1][1] = column.Y;
+	simObject.State.MomentOfInertia.Components[2][1] = column.Z;};
 	xml.onEndTag["InertiaColumn3"] = (in Element e) { Vector3 column = ParseVector3(e);
-	simObject.MomentOfInertia.Components[0][2] = column.X;
-	simObject.MomentOfInertia.Components[1][2] = column.Y;
-	simObject.MomentOfInertia.Components[2][2] = column.Z;};
+	simObject.State.MomentOfInertia.Components[0][2] = column.X;
+	simObject.State.MomentOfInertia.Components[1][2] = column.Y;
+	simObject.State.MomentOfInertia.Components[2][2] = column.Z;};
+	simObject.State.CalculateSecondaries();
 }
