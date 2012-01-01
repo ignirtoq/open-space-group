@@ -199,7 +199,7 @@ public struct Matrix3
 			return Matrix3(inverse);
 		}
 		else
-			static assert(false);
+			assert(false,"Matrix is singular.");
 	}
 	
 	public Vector3 MultiplyVector(Vector3 vector)
@@ -245,7 +245,7 @@ public struct Matrix3
 	
 	public static Quaternion ToQuaternion(Matrix3 matrix)
 	{
-		if(matrix.Components[0][0] + matrix.Components[1][1] + Components[2][2] > 0)
+		if(matrix.Components[0][0] + matrix.Components[1][1] + matrix.Components[2][2] > 0)
 		{
 			real radical = 2 * sqrt(1 + matrix.Components[0][0] + matrix.Components[1][1] + matrix.Components[2][2]);
 			real scalar = 0.25 * radical;
@@ -253,7 +253,7 @@ public struct Matrix3
 			real Y = (matrix.Components[0][2] - matrix.Components[2][0]) / radical;
 			real Z = (matrix.Components[1][0] - matrix.Components[0][1]) / radical;
 			
-			return Quaternion(Scalar, Vector3(X,Y,Z));
+			return Quaternion(scalar, Vector3(X,Y,Z));
 		}
 		else
 			assert(false);

@@ -14,6 +14,8 @@ template CopySimObject(string from, string to)
 	" ~ to ~ ".Velocity = " ~ from ~ ".Velocity;
 	" ~ to ~ ".Orientation = " ~ from ~ ".Orientation;
 	" ~ to ~ ".AngularMomentum = " ~ from ~ ".AngularMomentum;
+	" ~ to ~ ".Mass = " ~ from ~ ".Mass;
+	" ~ to ~ ".MomentOfInertia = " ~ from ~ ".MomentOfInertia;
 	";
 }
 
@@ -24,7 +26,7 @@ public abstract class SimObject
 	public Quaternion Orientation;
 	public Vector3 AngularMomentum;
 	public real Mass = 1.0;
-	public Vector3 MomentOfInertia = Vector3(1,1,1);
+	public Matrix3 MomentOfInertia = Matrix3([[0,0,0],[0,0,0],[0,0,0]]);
 
 	public @property string Name() { return name; }
 	private string name;
@@ -100,7 +102,7 @@ public class Rocket : SimObject
 		Vector3 dragOrthogonal = drag - dragParallel;
 		Vector3 torque = Mass * CenterOfPressure.RotateBy(Orientation).Cross(dragOrthogonal);
 		Vector3 localTorque = torque.RotateBy(Orientation.Conjugate());
-		Vector3 angularAcceleration = Vector3(localTorque.X / MomentOfInertia.X, localTorque.Y / MomentOfInertia.Y, localTorque.Z / MomentOfInertia.Z);
+		//Vector3 angularAcceleration = Vector3(localTorque.X / MomentOfInertia.X, localTorque.Y / MomentOfInertia.Y, localTorque.Z / MomentOfInertia.Z);
 
 		Vector3 thrustVector = -Thrust / Mass * CenterOfPressure.RotateBy(Orientation).Normalize();
 
@@ -112,7 +114,7 @@ public class Rocket : SimObject
 		}
 		Velocity = Velocity + (acceleration * timeStep);
 		Position = Position + (Velocity * timeStep);
-		Orientation = Quaternion.FromAxisAngle(angularAcceleration.Normalize(), angularAcceleration.Length() * timeStep) * Orientation;
+		//Orientation = Quaternion.FromAxisAngle(angularAcceleration.Normalize(), angularAcceleration.Length() * timeStep) * Orientation;
 
 		burnedTime += timeStep;
 	}
@@ -225,12 +227,12 @@ public class TestRotationalObject : SimObject
 	public void Update(real timeStep, EnvironmentService environment)
 	{
 		Vector3 acceleration = Vector3(0,0,0);
-		Vector3 angularAcceleration = Vector3(0,0,0.00006);
+		Vector3 torque = Vector3(0,0,0.00001);
 		
 		Velocity = applyAcceleration(Velocity, acceleration, timeStep);
 		Position = applyVelocity(Position, Velocity, timeStep);
-		AngularVelocity = applyAngularAcceleration(AngularVelocity, angularAcceleration, timeStep);
-		Orientation = applyAngularVelocity(Orientation, AngularVelocity, timeStep);
+		AngularMomentum = applyTorque(AngularMomentum, torque, timeStep);
+		Orientation = applyAngularVelocity(Orientation, MomentOfInertia.Inverse().MultiplyVector(AngularMomentum), timeStep);
 		
 	}
 	
@@ -249,9 +251,9 @@ public class TestRotationalObject : SimObject
 		return Quaternion.FromAxisAngle(angularVelocity.Normalize(), angularVelocity.Length() * timeStep) * orientation;
 	}
 	
-	private Vector3 applyAngularAcceleration(Vector3 angularVelocity, Vector3 angularAcceleration, real timeStep)
+	private Vector3 applyTorque(Vector3 angularMomentum, Vector3 torque, real timeStep)
 	{
-		return angularVelocity + (angularAcceleration * timeStep);
+		return angularMomentum + (torque * timeStep);
 	}
 
 	public SimObject Clone(string newName)
