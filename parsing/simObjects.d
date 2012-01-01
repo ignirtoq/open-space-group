@@ -20,6 +20,7 @@ static this()
 	parsers["Balloon"] = &parseBalloon;
 	parsers["Rocket"] = &parseRocket;
 	parsers["Satellite"] = &parseSatellite;
+	parsers["TestRotationalObject"] = &parseTestRotationalObject;
 }
 
 private SimObject parseBalloon(ElementParser xml)
@@ -54,11 +55,19 @@ private SimObject parseSatellite(ElementParser xml)
 	return newSatellite;
 } 
 
+private SimObject parseTestRotationalObject(ElementParser xml)
+{
+	TestRotationalObject newRotObject = new TestRotationalObject(xml.tag.attr["name"]);
+	readyBaseParser(xml, newRotObject);
+	xml.parse();
+	return newRotObject;
+} 
+
 private void readyBaseParser(ElementParser xml, SimObject simObject)
 {
 	xml.onEndTag["Position"] = (in Element e) { simObject.Position = ParseVector3(e); };
 	xml.onEndTag["Velocity"] = (in Element e) { simObject.Velocity = ParseVector3(e); };
-	xml.onEndTag["AngularVelocity"] = (in Element e) { simObject.AngularVelocity = ParseVector3(e); };
+	xml.onEndTag["AngularMomentum"] = (in Element e) { simObject.AngularMomentum = ParseVector3(e); };
 	xml.onEndTag["Orientation"] = (in Element e) { simObject.Orientation = ParseQuaternion(e); };
 	xml.onEndTag["Mass"] = (in Element e) { simObject.Mass = ParseReal(e); };
 	xml.onEndTag["MomentOfInertia"] = (in Element e) { simObject.MomentOfInertia = ParseVector3(e); };

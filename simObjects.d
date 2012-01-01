@@ -13,7 +13,7 @@ template CopySimObject(string from, string to)
 	" ~ to ~ ".Position = " ~ from ~ ".Position;
 	" ~ to ~ ".Velocity = " ~ from ~ ".Velocity;
 	" ~ to ~ ".Orientation = " ~ from ~ ".Orientation;
-	" ~ to ~ ".AngularVelocity = " ~ from ~ ".AngularVelocity;
+	" ~ to ~ ".AngularMomentum = " ~ from ~ ".AngularMomentum;
 	";
 }
 
@@ -22,7 +22,7 @@ public abstract class SimObject
 	public Vector3 Position;
 	public Vector3 Velocity;
 	public Quaternion Orientation;
-	public Vector3 AngularVelocity;
+	public Vector3 AngularMomentum;
 	public real Mass = 1.0;
 	public Vector3 MomentOfInertia = Vector3(1,1,1);
 
@@ -213,6 +213,59 @@ public class Satellite : SimObject
 	
 	private real burnedTime = 0;
 	private @property real area() { return PI * Radius*Radius; }
+}
+
+public class TestRotationalObject : SimObject
+{
+	public this(string name)
+	{
+		super(name);
+	}
+
+	public void Update(real timeStep, EnvironmentService environment)
+	{
+		Vector3 acceleration = Vector3(0,0,0);
+		Vector3 angularAcceleration = Vector3(0,0,0.00006);
+		
+		Velocity = applyAcceleration(Velocity, acceleration, timeStep);
+		Position = applyVelocity(Position, Velocity, timeStep);
+		AngularVelocity = applyAngularAcceleration(AngularVelocity, angularAcceleration, timeStep);
+		Orientation = applyAngularVelocity(Orientation, AngularVelocity, timeStep);
+		
+	}
+	
+	private Vector3 applyVelocity(Vector3 position, Vector3 velocity, real timeStep)
+	{
+		return position + (velocity * timeStep);
+	}
+	
+	private Vector3 applyAcceleration(Vector3 velocity, Vector3 acceleration, real timeStep)
+	{
+		return velocity + (acceleration * timeStep);
+	}
+	
+	private Quaternion applyAngularVelocity(Quaternion orientation, Vector3 angularVelocity, real timeStep)
+	{
+		return Quaternion.FromAxisAngle(angularVelocity.Normalize(), angularVelocity.Length() * timeStep) * orientation;
+	}
+	
+	private Vector3 applyAngularAcceleration(Vector3 angularVelocity, Vector3 angularAcceleration, real timeStep)
+	{
+		return angularVelocity + (angularAcceleration * timeStep);
+	}
+
+	public SimObject Clone(string newName)
+	{
+		TestRotationalObject newRotObject = new TestRotationalObject(newName);
+		newRotObject.Mass = Mass;
+		mixin(CopySimObject!("this", "newRotObject"));
+		return newRotObject;
+	}
+
+	public void ApplyImpulse(Vector3 impulse)
+	{
+		Velocity = Velocity + ((1.0 / Mass) * impulse);
+	}
 }
 
 /*

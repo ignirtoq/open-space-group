@@ -160,6 +160,80 @@ public class SingleObjectVelocityLogger : Logger
 	private string outputFileContent;
 	private Vector3 currentVelocity;
 }
+
+public class SingleObjectOrientationLogger : Logger
+{
+	public real LogInterval;
+	public string TargetName;
+	public bool WriteToConsole = false;
+
+	public void BeginTimeStep(real time)
+	{
+		if(time - lastLog >= LogInterval)
+		{
+			currentTime = time;
+			isLogging = true;
+		}
+	}
+
+	public void EndTimeStep()
+	{
+		if(isLogging)
+		{
+			lastLog = currentTime;
+			isLogging = false;
+			if(isReadyToLog())
+			{
+				if(WriteToConsole)
+					writefln("%f %f %f %f", currentTime, currentAxis.X, currentAxis.Y, currentAxis.Z);
+				else
+					outputFileContent ~= format("%f %f %f %f\n", currentTime, currentAxis.X, currentAxis.Y, currentAxis.Z);
+			}
+			currentTime = real.nan;
+			currentAxis = Vector3(real.nan, real.nan, real.nan);
+		}
+	}
+
+	public void LogSimObject(SimObject simObject)
+	{
+		if(isLogging && simObject.Name == TargetName)
+		{
+			currentOrientation = simObject.Orientation;
+			currentAxis = Vector3(1,0,0).RotateBy(currentOrientation);
+		}
+	}
+	
+	public void EndSimulation()
+	{
+		if(!WriteToConsole)
+		{
+			if(!exists("output"))
+				mkdir("output");
+			else
+				assert(isDir("output"),"\"output\" exists and is not a directory.");
+		
+			chdir("output");
+			if(exists(TargetName ~ ".ang.dat"))
+				remove(TargetName ~ ".ang.dat");
+			append(TargetName ~ ".ang.dat", outputFileContent);
+			chdir("..");
+		}
+	}
+
+	public void LogSimulation(Simulation sim) { }
+
+	private bool isReadyToLog()
+	{
+		return !(isnan(currentTime) || isnan(currentAxis.X));
+	}
+
+	private bool isLogging = false;
+	private real lastLog = 0;
+	private real currentTime;
+	private string outputFileContent;
+	private Quaternion currentOrientation;
+	private Vector3 currentAxis;
+}
 /*
 public class MultiObjectPositionLogger : Logger
 {
