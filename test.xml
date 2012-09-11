@@ -1,5 +1,5 @@
 <Simulation>
-	<SimObject type="Balloon" name="Balloon1" reserved="true">
+	<SimObject type="Balloon" name="Balloon1">
 		<Position x="0" y="0" z="6.3781e6" />
 		<Velocity x="0" y="0" z="0" />
 		<AngularMomentum x="0" y="0" z="0" />
@@ -9,8 +9,8 @@
 			<Column2 x="0" y="1.21" z="0" />
 			<Column3 x="0" y="0" z="1.21" />
 		</MomentOfInertia>
-		<Radius>1.1</Radius>
-		<Mass>1.0</Mass>
+		<Radius>3.0</Radius>
+		<Mass>3.0</Mass>
 	</SimObject>
 	<SimObject type="Balloon" name="BalloonTemplate" reserved="true">
 		<Position x="0" y="0" z="6.3781e6" />
@@ -25,7 +25,7 @@
 		<Radius>1.1</Radius>
 		<Mass>1.0</Mass>
 	</SimObject>
-	<SimObject type="Rocket" name="Rocket1" reserved="true">
+	<SimObject type="Rocket" name="RocketTemp" reserved="true">
 		<Position x="0" y="0" z="6.3781e6" />
 		<Velocity x="0" y="0" z="0" />
 		<AngularMomentum x="0" y="0" z="0" />
@@ -35,12 +35,12 @@
 			<Column2 x="0" y="1" z="0" />
 			<Column3 x="0" y="0" z="1" />
 		</MomentOfInertia>
-		<Mass>1.0</Mass>
-		<Thrust>100</Thrust>
-		<BurnTime>60</BurnTime>
+		<Mass>2.0</Mass>
+		<Thrust>1000</Thrust>
+		<BurnTime>15</BurnTime>
 		<Radius>.25</Radius>
 	</SimObject>
-	<SimObject type="Satellite" name="Satellite1" reserved="true">
+	<SimObject type="Satellite" name="SatelliteTemp" reserved="true">
 		<Position x="7.5781e6" y="0" z="0" />
 		<Velocity x="0" y="100" z="0" />
 		<AngularMomentum x="0" y="0" z="0" />
@@ -54,7 +54,7 @@
 		<MaxThrust>20</MaxThrust>
 		<Radius>0.1</Radius>
 	</SimObject>
-	<SimObject type="TestRotationalObject" name="RotObject1">
+	<SimObject type="TestRotationalObject" name="RotObject1" reserved="true">
 		<Position x="0" y="0" z="0" />
 		<Velocity x="0" y="0" z="0" />
 		<AngularMomentum x="0" y="0.06272" z="0" />
@@ -80,10 +80,63 @@
 			<Floor>6.37809e6</Floor>
 		</Trigger>
 	</Event>-->
+	<Event type="ObjectCreationEvent">
+		<TemplateName>RocketTemp</TemplateName>
+		<NewName>Rocket1</NewName>
+		<AttributeSourceName>Balloon1</AttributeSourceName>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon1</TargetName>
+		</Trigger>
+	</Event>
+	<Event type="ChangeMassEvent">
+		<TargetName>Balloon1</TargetName>
+		<NewMass>1.0</NewMass>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Balloon1</TargetName>
+		</Trigger>
+	</Event>
+	<Event type="ObjectCreationEvent">
+		<TemplateName>SatelliteTemp</TemplateName>
+		<NewName>Satellite1</NewName>
+		<AttributeSourceName>Rocket1</AttributeSourceName>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Rocket1</TargetName>
+		</Trigger>
+	</Event>
+	<Event type="ChangeMassEvent">
+		<TargetName>Rocket1</TargetName>
+		<NewMass>1.0</NewMass>
+		<Trigger type="TurnAroundTrigger">
+			<TargetName>Rocket1</TargetName>
+		</Trigger>
+	</Event>
+	<Event type="HaltSimEvent">
+		<Trigger type="FloorTrigger">
+			<TargetName>Satellite1</TargetName>
+			<Floor>6.37809e6</Floor>
+		</Trigger>
+	</Event>
 	<TimeStep>0.1</TimeStep>
-	<Logger type="SingleObjectOrientationLogger">
+	<Logger type="SingleObjectPositionLogger">
+		<TargetName>Balloon1</TargetName>
+		<LogInterval>1.0</LogInterval>
+	</Logger>
+	<Logger type="SingleObjectPositionLogger">
+		<TargetName>Rocket1</TargetName>
+		<LogInterval>1.0</LogInterval>
+	</Logger>
+	<Logger type="SingleObjectVelocityLogger">
+		<TargetName>Rocket1</TargetName>
+		<LogInterval>1.0</LogInterval>
+	</Logger>
+	<Logger type="SingleObjectPositionLogger">
+		<TargetName>Satellite1</TargetName>
+		<LogInterval>5.0</LogInterval>
+	</Logger>
+	<TimeStep>0.1</TimeStep>
+	<!--<Logger type="SingleObjectOrientationLogger">
 		<TargetName>RotObject1</TargetName>
 		<LogInterval>0.0</LogInterval>
-	</Logger>
+	</Logger>-->
 	<Environment type="NaiveNASAEnvironment" />
 </Simulation>
