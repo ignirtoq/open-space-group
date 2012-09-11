@@ -17,7 +17,8 @@ public Vector3 GravitationalForce(Vector3 position, real mass)
 
 public Vector3 DragForce(Vector3 position, Vector3 velocity, real crossectionalArea, real dragCoefficient, real delegate(Vector3 pos) density)
 {
-	return -0.5 * density(position) * dragCoefficient * crossectionalArea * velocity.Length() * velocity;
+	auto RotatingVelocity = Vector3(velocity.X + position.Y * ANGULAR_VELOCITY_OF_EARTH, velocity.Y - position.X * ANGULAR_VELOCITY_OF_EARTH, velocity.Z);
+	return -0.5 * density(position) * dragCoefficient * crossectionalArea * RotatingVelocity.Length() * RotatingVelocity;
 }
 
 public Vector3 BuoyantForce(Vector3 position, real mass, real volume, real delegate(Vector3 pos) density)
