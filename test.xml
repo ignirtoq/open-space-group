@@ -1,9 +1,9 @@
 <Simulation>
 	<SimObject type="Balloon" name="Balloon1">
-		<Position x="0" y="0" z="6.3781e6" />
-		<Velocity x="0" y="0" z="0" />
+		<Position x="6.3781e6" y="0" z="0" />
+		<Velocity x="0" y="463.82852092271" z="0" />
 		<AngularMomentum x="0" y="0" z="0" />
-		<Orientation real="1" i="0" j="0" k="0" />
+		<Orientation real="0.7071067811865" i="0" j="0.7071067811865" k="0" />
 		<MomentOfInertia>
 			<Column1 x="1.21" y="0" z="0" />
 			<Column2 x="0" y="1.21" z="0" />
@@ -37,7 +37,7 @@
 		</MomentOfInertia>
 		<Mass>2.0</Mass>
 		<Thrust>1000</Thrust>
-		<BurnTime>15</BurnTime>
+		<BurnTime>30</BurnTime>
 		<Radius>.25</Radius>
 	</SimObject>
 	<SimObject type="Satellite" name="SatelliteTemp" reserved="true">
