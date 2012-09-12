@@ -3,6 +3,7 @@ module superAwesome.triggers;
 import superAwesome.simulations;
 import superAwesome.simObjects;
 import superAwesome.geometry;
+import superAwesome.constants;
 
 public abstract class Trigger
 {
@@ -26,7 +27,9 @@ public class TurnAroundTrigger : Trigger
 	
 		if(hasPreviousVelocity)
 		{
-			if(lastVelocity.Dot(target.State.Velocity) < 0)
+			auto LastVelocitySansEarthRotation = lastVelocity - Vector3(-target.State.Position.Y * ANGULAR_VELOCITY_OF_EARTH, + target.State.Position.X * ANGULAR_VELOCITY_OF_EARTH, 0);
+			auto ThisVelocitySansEarthRotation = target.State.Velocity - Vector3(-target.State.Position.Y * ANGULAR_VELOCITY_OF_EARTH, + target.State.Position.X * ANGULAR_VELOCITY_OF_EARTH, 0);
+			if(LastVelocitySansEarthRotation.Dot(ThisVelocitySansEarthRotation) < 0)
 				return true;
 			else
 				return false;
